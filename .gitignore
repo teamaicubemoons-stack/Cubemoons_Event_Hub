@@ -1,13 +1,30 @@
-# Byte-compiled / optimized / DLL files
+# ========================
+# Environment & Secrets
+# ========================
+.env
+.env.local
+.env.production
+.env.*.local
+
+# ========================
+# Python
+# ========================
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
+*.pyo
+*.pyd
 
-# Distribution / packaging
-.Python
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution / Packaging
 build/
 develop-eggs/
 dist/
@@ -24,10 +41,9 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+.Python
 
 # PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
 
@@ -49,22 +65,22 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# IDE-specific files
+# ========================
+# IDE & Editor
+# ========================
 .idea/
 .vscode/
 *.swp
 *.swo
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
 
-# OS generated files
+# ========================
+# OS Generated Files
+# ========================
 .DS_Store
 .DS_Store?
 ._*
@@ -72,19 +88,30 @@ venv.bak/
 .Trashes
 ehthumbs.db
 Thumbs.db
+desktop.ini
 
-# Logs and databases
+# ========================
+# Logs & Databases
+# ========================
 *.log
 *.sqlite
 *.db
+*.sqlite3
 
-# Node.js
+# ========================
+# Node.js (if applicable)
+# ========================
 node_modules/
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
 
-# Java
-*.class
-*.jar
-*.war
-*.ear
-hs_err_pid*
+# ========================
+# Misc
+# ========================
+*.tmp
+*.temp
+*.bak
+*.orig
+.gemini/
