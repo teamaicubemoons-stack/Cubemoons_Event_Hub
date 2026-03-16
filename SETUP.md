@@ -47,7 +47,7 @@ You should see `(.venv)` or `(Business-Card-OCR)` in your terminal prompt.
 ## 📦 Step 3: Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 ```
 
 This installs:
@@ -116,7 +116,9 @@ This is needed to save the extracted data to a Google Sheet. Follow the detailed
 
 ## 📝 Step 5: Create the `.env` File
 
-Create a file named `.env` in the project root directory:
+Create a file named `.env` inside the `backend` directory:
+
+**Path:** `backend/.env`
 
 ```env
 OPENAI_API_KEY=sk-proj-your-openai-key-here
@@ -129,10 +131,10 @@ APPS_SCRIPT_URL=https://script.google.com/macros/s/your-script-id/exec
 
 ---
 
-## ▶️ Step 6: Run the Server
+## ▶️ Step 6: Run the Application
 
 ```bash
-uvicorn main:app --reload
+python backend/main.py
 ```
 
 You should see:
@@ -146,18 +148,16 @@ INFO:     Application startup complete.
 
 ## 🌐 Step 7: Open the Frontend
 
-Open `index.html` directly in your browser:
+Open your browser and navigate to:
+**http://127.0.0.1:8000**
 
-- **Windows:** Double-click on `index.html`, OR
-- **Browser:** Navigate to `file:///C:/path/to/project/index.html`
-
-> **Note:** Make sure the backend is running on `http://127.0.0.1:8000` before uploading cards.
+The Python server now serves both the AI OCR API and the Web Interface on the same port.
 
 ---
 
 ## 🧪 Step 8: Test It Out
 
-1. Open `index.html` in your browser
+1. Open **http://127.0.0.1:8000** in your browser
 2. Upload a business card image (front side)
 3. Optionally upload the back side too
 4. Click **"Scan Card"**

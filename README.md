@@ -95,21 +95,21 @@ An end-to-end system that uses **OpenAI GPT-4o Vision** to extract text from bus
 
 ```
 Business-Card-OCR/
-├── main.py                  # FastAPI backend — OCR + Enrichment pipeline
-├── index.html               # Frontend — card upload UI
-├── leads.html               # Leads management dashboard
-├── style.css                # UI styling
-├── worker.js                # Service worker for background tasks
-├── test.py                  # Test suite
-├── test_index.html          # Test UI page
-├── requirements.txt         # Python dependencies
-├── vercel.json              # Vercel deployment config
-├── .env                     # API keys (not committed)
-├── .gitignore               # Git exclusions
-├── FINAL_APPS_SCRIPT.js     # Google Apps Script code
-├── APPS_SCRIPT_GUIDE.md     # Setup guide for Apps Script
+├── backend/                 # FastAPI backend logic
+│   ├── main.py              # OCR + Enrichment pipeline
+│   ├── requirements.txt     # Python dependencies
+│   └── .env                 # API keys (not committed)
+├── frontend/                # Web Interface files
+│   ├── index.html           # Main upload UI
+│   ├── leads.html           # Leads dashboard
+│   ├── style.css            # UI styling
+│   └── worker.js            # Background sync worker
+├── README.md                # Project overview
 ├── SETUP.md                 # Detailed setup instructions
-└── README.md                # This file
+├── APPS_SCRIPT_GUIDE.md     # Google Sheets setup
+├── FINAL_APPS_SCRIPT.js     # Sheets automation code
+├── vercel.json              # Deployment config
+└── .gitignore               # Git exclusions
 ```
 
 ---
@@ -127,19 +127,17 @@ python -m venv .venv
 # source .venv/bin/activate   # macOS/Linux
 
 # 3. Install dependencies
-pip install -r requirements.txt
+# 3. Install dependencies
+pip install -r backend/requirements.txt
 
-# 4. Create .env file (see SETUP.md for details)
-# OPENAI_API_KEY=sk-...
-# GOOGLE_API_KEY=AIza...
-# GOOGLE_CSE_ID=...
-# APPS_SCRIPT_URL=https://script.google.com/...
+# 4. Create .env file at /backend/.env
+# (See SETUP.md for details)
 
-# 5. Run the server
-uvicorn main:app --reload
+# 5. Run the application
+python run.py
 ```
 
-Then open `index.html` in your browser and start scanning cards!
+Then open `http://127.0.0.1:8000` in your browser and start scanning cards!
 
 > 📖 For detailed setup instructions, see **[SETUP.md](SETUP.md)**
 

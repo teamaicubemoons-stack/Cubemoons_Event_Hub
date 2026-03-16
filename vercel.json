@@ -2,22 +2,30 @@
   "version": 2,
   "builds": [
     {
-      "src": "main.py",
+      "src": "backend/main.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/worker.js",
-      "dest": "/worker.js"
+      "dest": "frontend/worker.js"
     },
     {
-      "src": "/",
-      "dest": "/index.html"
+      "src": "/style.css",
+      "dest": "frontend/style.css"
+    },
+    {
+      "src": "/leads",
+      "dest": "frontend/leads.html"
     },
     {
       "src": "/ocr",
-      "dest": "main.py"
+      "dest": "backend/main.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/index.html"
     }
   ]
 }
