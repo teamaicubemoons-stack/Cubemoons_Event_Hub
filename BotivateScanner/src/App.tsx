@@ -182,8 +182,9 @@ END:VCARD`.trim()
       const blob = new Blob([vCard], { type: "text/vcard;charset=utf-8" });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
+      const uniqueName = `${contactInfo.firstName}_${Date.now()}.vcf`;
       link.href = url;
-      link.setAttribute("download", `${contactInfo.firstName}.vcf`);
+      link.setAttribute("download", uniqueName);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
