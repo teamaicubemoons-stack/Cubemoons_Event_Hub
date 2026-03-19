@@ -349,7 +349,7 @@ function getEventById(eventId) {
  * Save Lead Data from the QR Scan Form
  */
 function saveLeadData(leadData) {
-  const SHEET_NAME = "QR Scanned Leads";
+  const SHEET_NAME = "Visitor Details";
   const ss = SpreadsheetApp.openById(SHEET_ID);
   let sheet = ss.getSheetByName(SHEET_NAME);
   
