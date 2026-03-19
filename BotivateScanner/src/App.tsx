@@ -154,15 +154,24 @@ END:VCARD`.trim()
 
   const downloadVCard = () => {
     if (!contactInfo) return;
-    const vCard = generateVCard(contactInfo)
-    const blob = new Blob([vCard], { type: "text/vcard;charset=utf-8" })
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.href = url
-    link.setAttribute("download", `${contactInfo.firstName}.vcf`)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    const vCard = generateVCard(contactInfo);
+    // Use direct data URI navigation for a more "actionable" prompt on mobile
+    const uri = "data:text/vcard;charset=utf-8," + encodeURIComponent(vCard);
+    
+    // Attempt direct navigation first (often prompts 'Open with Contacts')
+    window.location.href = uri;
+    
+    // Fallback for some browsers that block direct navigation to data:
+    setTimeout(() => {
+      const blob = new Blob([vCard], { type: "text/vcard;charset=utf-8" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `${contactInfo.firstName}.vcf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }, 1500);
   }
 
   const generateQRCodeDataURL = async (text: string, options = {}): Promise<string> => {
