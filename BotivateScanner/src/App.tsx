@@ -156,39 +156,22 @@ END:VCARD`.trim()
     if (!contactInfo) return;
     const vCard = generateVCard(contactInfo);
     
-    // 1. STRONGEST METHOD: Native Share API (Bypasses download folder entirely)
-    // Forces the OS to show 'Add to Contacts' or 'Open with...' immédiatement
+    // Attempt 1: Native Sharing (Direct to Contacts on most mobiles)
     try {
       if (typeof navigator.share !== 'undefined') {
         const file = new File([vCard], `${contactInfo.firstName}.vcf`, { type: 'text/vcard' });
         await navigator.share({
           files: [file],
           title: `Save ${contactInfo.firstName}'s Contact`,
-          text: 'Member contact details'
+          text: 'Contact details'
         });
-        return; // Success! No manual open needed.
+        return; // Success! No download window.
       }
-    } catch (e) { console.warn("Share failed, trying direct navigation..."); }
+    } catch (e) { console.warn("Share failed or canceled."); }
 
-    // 2. AGGRESSIVE METHOD: Direct Data URI Navigation
-    // Often triggers 'Action selection' in Chrome/Safari instead of a silent download
-    try {
-      const dataUri = "data:text/vcard;charset=utf-8," + encodeURIComponent(vCard);
-      window.location.assign(dataUri);
-    } catch (e) { console.warn("Data URI navigation failed."); }
-
-    // 3. FALLBACK: Safety Download (For desktops/legacy browsers)
-    setTimeout(() => {
-      const blob = new Blob([vCard], { type: "text/vcard;charset=utf-8" });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      const uniqueName = `${contactInfo.firstName}_${Date.now()}.vcf`;
-      link.href = url;
-      link.setAttribute("download", uniqueName);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }, 2000);
+    // Attempt 2: Direct Data Navigation (Forces 'Open with' prompt in many browsers)
+    // Using simple location.href to prevent double triggering or phantom files
+    window.location.href = "data:text/vcard;charset=utf-8," + encodeURIComponent(vCard);
   }
 
   const generateQRCodeDataURL = async (text: string, options = {}): Promise<string> => {
