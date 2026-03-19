@@ -115,6 +115,10 @@
                 <p class="text-gray-500 text-sm font-medium mt-1">Intelligent OCR Processing Engine</p>
             </div>
             <div class="flex items-center gap-4">
+                <button type="button" id="openEventBtn" class="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-lg shadow-blue-100 hover:scale-105 transition-all group active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span class="text-[11px] font-bold uppercase tracking-widest">+ Create Event</span>
+                </button>
                 <a href="leads.html" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-100 rounded-full shadow-sm hover:bg-gray-50 transition-colors group">
                     <svg class="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                     <span class="text-[11px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-blue-600 transition-colors">Database</span>
@@ -214,32 +218,307 @@
         </footer>
     </div>
 
-    <!-- Camera Overlay UI -->
-    <div id="cameraOverlay">
-        <div class="camera-container" id="cameraBox">
-            <span class="camera-label" id="sideLabel">Capture Front</span>
-            <video id="videoFeed" autoplay playsinline></video>
-        </div>
-        
-        <div class="camera-controls" id="cameraBtns">
-            <button onclick="closeCamera()" class="p-4 bg-white/10 text-white rounded-full hover:bg-white/20">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-            <button onclick="capture()" class="shutter-btn"></button>
-            <div class="w-14"></div> <!-- Spacer -->
-        </div>
+    <!-- Event Creation Modal -->
+    <div id="eventModalBackdrop" class="modal-backdrop">
+        <div class="event-modal">
+            <header class="modal-header">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Create New Event</h2>
+                    <p class="text-[11px] text-gray-400 font-bold uppercase tracking-[0.2em] mt-1">Event-based Lead Capture</p>
+                </div>
+                <button id="closeEventModal" class="p-3 bg-gray-50 text-gray-400 rounded-2xl hover:bg-gray-100 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </header>
 
-        <div class="choice-modal" id="choiceModal">
-            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-            </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Front Captured!</h3>
-            <p class="text-gray-500 text-sm mb-8">Would you like to capture the back side of the card for more details?</p>
-            <div class="flex flex-col gap-3">
-                <button onclick="retakeBack()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-100">📸 Capture Back Side</button>
-                <button onclick="closeCamera()" class="w-full bg-gray-50 text-gray-500 py-4 rounded-2xl font-bold hover:bg-gray-100 uppercase tracking-widest text-[11px]">⏩ Skip & Analyze Now</button>
+            <div class="modal-body relative">
+                <!-- Success Overlay -->
+                <div id="eventSuccessOverlay" class="success-overlay">
+                    <div class="w-20 h-20 bg-green-50 text-green-500 rounded-3xl flex items-center justify-center mb-6">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-900 mb-2">Event Created ✅</h3>
+                    <p class="text-gray-500 max-w-sm mx-auto mb-8">Your event has been successfully registered. Share the link or QR code with your team.</p>
+                    
+                    <div class="qr-placeholder">
+                        <img id="generatedQR" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://leadscan-pro.app/event/demo" alt="QR Code">
+                    </div>
+
+                    <div class="w-full max-w-md bg-gray-50 p-4 rounded-2xl border border-gray-100 mb-10 flex items-center justify-between">
+                        <span id="eventLinkText" class="text-sm text-gray-600 font-medium truncate mr-4">generating...</span>
+                        <button onclick="copyEventLink()" class="text-[10px] font-bold uppercase tracking-widest text-blue-600 px-3 py-1.5 bg-white border border-blue-50 rounded-full shadow-sm hover:bg-blue-50 transition-all">Copy Link</button>
+                    </div>
+
+                    <div class="flex gap-4 w-full max-w-md">
+                        <button onclick="downloadQR()" class="flex-1 bg-white border border-gray-100 text-gray-700 py-4 rounded-2xl font-bold shadow-sm hover:bg-gray-50">Download QR</button>
+                        <button onclick="location.reload()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-100">Plan New Event</button>
+                    </div>
+                </div>
+
+                <form id="eventCreationForm">
+                    <!-- SECTION 1: EVENT DETAILS -->
+                    <div class="section-card">
+                        <div class="section-title">
+                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span>Event Details</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="input-group md:col-span-2">
+                                <label class="input-label">Event Name</label>
+                                <input type="text" id="event_name" class="input-field" placeholder="e.g. Dubai Business Expo 2026" required>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Start Date</label>
+                                <input type="date" id="start_date" class="input-field" required>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">End Date</label>
+                                <input type="date" id="end_date" class="input-field" required>
+                            </div>
+                            <div class="input-group md:col-span-2">
+                                <label class="input-label">Location</label>
+                                <input type="text" id="event_location" class="input-field" placeholder="Full address or Venue name" required>
+                            </div>
+                            <div class="input-group md:col-span-2">
+                                <label class="input-label">Description (Optional)</label>
+                                <textarea id="event_description" class="input-field min-h-[100px]" placeholder="Briefly describe the event..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: COMPANY DETAILS -->
+                    <div class="section-card">
+                        <div class="section-title">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            <span>Company Details</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="input-group">
+                                <label class="input-label">Company Name</label>
+                                <input type="text" id="comp_name" class="input-field" placeholder="Your brand name" required>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Tagline (Optional)</label>
+                                <input type="text" id="comp_tagline" class="input-field" placeholder="Short slogan">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Industry</label>
+                                <select id="comp_industry" class="input-field">
+                                    <option value="">Select Industry</option>
+                                    <option>Technology</option>
+                                    <option>Real Estate</option>
+                                    <option>Healthcare</option>
+                                    <option>Finance</option>
+                                    <option>Education</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Founded Year</label>
+                                <input type="number" id="comp_founded" class="input-field" placeholder="YYYY">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: CONTACT INFO -->
+                    <div class="section-card">
+                        <div class="section-title">
+                            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                            <span>Contact Info</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="input-group">
+                                <label class="input-label">Official Phone</label>
+                                <input type="tel" id="off_phone" class="input-field" placeholder="+1..." required>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Alternate Phone</label>
+                                <input type="tel" id="alt_phone" class="input-field" placeholder="Mobile number">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Official Email</label>
+                                <input type="email" id="off_email" class="input-field" placeholder="info@company.com" required>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">WhatsApp Number</label>
+                                <input type="tel" id="whatsapp_num" class="input-field" placeholder="For instant connect">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 4: ADDRESS -->
+                    <div class="section-card">
+                        <div class="section-title">
+                            <svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span>Address</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="input-group md:col-span-2">
+                                <label class="input-label">Address Line</label>
+                                <input type="text" id="addr_line" class="input-field" placeholder="Street, Building, Suite">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">City</label>
+                                <input type="text" id="city" class="input-field" required>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">State</label>
+                                <input type="text" id="state" class="input-field" required>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Pincode</label>
+                                <input type="text" id="pincode" class="input-field">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Country</label>
+                                <input type="text" id="country" class="input-field" value="India">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 5: ONLINE PRESENCE -->
+                    <div class="section-card">
+                        <div class="section-title">
+                            <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                            <span>Online Presence</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="input-group">
+                                <label class="input-label">Website URL</label>
+                                <input type="url" id="web_url" class="input-field" placeholder="https://...">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Google Maps Link</label>
+                                <input type="url" id="maps_link" class="input-field" placeholder="Share link from maps">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">LinkedIn</label>
+                                <input type="url" id="linkedin_url" class="input-field">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Instagram</label>
+                                <input type="url" id="insta_url" class="input-field">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Facebook</label>
+                                <input type="url" id="fb_url" class="input-field">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Twitter / X</label>
+                                <input type="url" id="twitter_url" class="input-field">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 6: COMPANY INFO -->
+                    <div class="section-card">
+                        <div class="section-title">
+                            <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>Company Info</span>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="input-group">
+                                <label class="input-label">Services Offered (Space separated)</label>
+                                <input type="text" id="services_offered" class="input-field" placeholder="Web-Dev Designing AI Marketing">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">About Company</label>
+                                <textarea id="about_comp" class="input-field min-h-[100px]" placeholder="Briefly introduce your business..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 7: TEAM MEMBERS -->
+                    <div class="section-card">
+                        <div class="section-title justify-between">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                <span>Team Members</span>
+                            </div>
+                            <button type="button" id="addMemberBtn" class="btn-pill bg-blue-50 text-blue-600 hover:bg-blue-100">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                <span>Add Member</span>
+                            </button>
+                        </div>
+                        <div id="membersList" class="space-y-4">
+                            <!-- Dynamically Added Members Go Here -->
+                        </div>
+                    </div>
+
+                    <!-- SECTION 8: BRANDING -->
+                    <div class="section-card">
+                        <div class="section-title">
+                            <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 014 4h12l-1 5H7z"></path></svg>
+                            <span>Branding</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="input-group">
+                                <label class="input-label">Company Logo</label>
+                                <div class="flex items-center gap-4">
+                                    <div class="w-16 h-16 bg-gray-50 border border-dashed border-gray-200 rounded-2xl flex items-center justify-center text-gray-400 overflow-hidden">
+                                        <img id="logo_preview" class="hidden w-full h-full object-contain">
+                                        <svg id="logo_placeholder" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    </div>
+                                    <input type="file" id="comp_logo_input" accept="image/*" class="hidden">
+                                    <button type="button" onclick="document.getElementById('comp_logo_input').click()" class="text-[10px] font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-4 py-2 rounded-full">Upload Logo</button>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Theme Color</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="color" id="theme_color" class="w-10 h-10 border-none bg-transparent rounded-full cursor-pointer" value="#2563eb">
+                                    <span class="text-xs font-mono text-gray-500">Pick color</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 9: SETTINGS -->
+                    <div class="section-card">
+                        <div class="section-title">
+                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <span>Feature Settings</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                                <span class="text-xs font-bold text-gray-700">Save Contact</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="setting_save_contact" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                                <span class="text-xs font-bold text-gray-700">Download Card</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="setting_download_card" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                                <span class="text-xs font-bold text-gray-700">WhatsApp Msg</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="setting_whatsapp_btn" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-8">
+                        <button type="submit" id="submitEventBtn" class="w-full py-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-3xl font-bold text-lg shadow-xl shadow-blue-100 hover:scale-[1.02] transition-all flex items-center justify-center gap-4">
+                            <span id="eventBtnText">Create Event & Generate QR</span>
+                            <div id="eventBtnLoader" class="hidden w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
+
+    <!-- Floating Mode Toggle -->
+    <div class="floating-mode-toggle">
+        <button onclick="setMode('normal')" id="modeNormal" class="mode-btn active">Normal Mode</button>
+        <button onclick="setMode('event')" id="modeEvent" class="mode-btn">Event Mode</button>
     </div>
 
     <script>
@@ -400,6 +679,249 @@
                     bg.postMessage({ ocrBackendUrl: api, photo1Base64: p1, photo2Base64: p2 });
                     toastMe('Processing in background...', '#3b82f6');
                 } catch (err) { done(); toastMe('Encode error.', '#ef4444'); }
+            };
+
+            // --- Event Logic ---
+            const eventModal = document.getElementById('eventModalBackdrop');
+            const openEventBtn = document.getElementById('openEventBtn');
+            const closeEventModal = document.getElementById('closeEventModal');
+            const eventForm = document.getElementById('eventCreationForm');
+            const addMemberBtn = document.getElementById('addMemberBtn');
+            const membersList = document.getElementById('membersList');
+            const eventSuccessOverlay = document.getElementById('eventSuccessOverlay');
+            const eventBtnText = document.getElementById('eventBtnText');
+            const eventBtnLoader = document.getElementById('eventBtnLoader');
+
+            openEventBtn.onclick = () => eventModal.classList.add('active');
+            closeEventModal.onclick = () => {
+                eventModal.classList.remove('active');
+                setTimeout(() => {
+                    eventSuccessOverlay.classList.remove('active');
+                    eventForm.reset();
+                    membersList.innerHTML = '';
+                    eventBtnText.classList.remove('hidden');
+                    eventBtnLoader.classList.add('hidden');
+                    // Reset visibility
+                    document.getElementById('eventCreationForm').classList.remove('hidden');
+                    document.querySelector('.modal-header').classList.remove('hidden');
+                    // Reset height
+                    document.querySelector('.modal-body').style.minHeight = null;
+                }, 400);
+            };
+
+            addMemberBtn.onclick = () => {
+                const id = Date.now();
+                const div = document.createElement('div');
+                div.className = 'member-card';
+                div.id = `member-${id}`;
+                div.innerHTML = `
+                    <button type="button" onclick="removeMember(${id})" class="remove-member">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="input-group mb-0">
+                            <label class="input-label">Member Name</label>
+                            <input type="text" class="input-field py-2" required>
+                        </div>
+                        <div class="input-group mb-0">
+                            <label class="input-label">Designation</label>
+                            <input type="text" class="input-field py-2" required>
+                        </div>
+                        <div class="input-group mb-0">
+                            <label class="input-label">Phone</label>
+                            <input type="tel" class="input-field py-2" required>
+                        </div>
+                    </div>
+                `;
+                membersList.appendChild(div);
+            };
+
+            window.removeMember = (id) => {
+                document.getElementById(`member-${id}`).remove();
+            }
+
+            // --- Logo Handling ---
+            let logoBase64 = null;
+            const logoInput = document.getElementById('comp_logo_input');
+            const logoPreview = document.getElementById('logo_preview');
+            const logoPlaceholder = document.getElementById('logo_placeholder');
+
+            logoInput.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (re) => {
+                    logoBase64 = re.target.result;
+                    logoPreview.src = logoBase64;
+                    logoPreview.classList.remove('hidden');
+                    logoPlaceholder.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            };
+
+            eventForm.onsubmit = async (e) => {
+                e.preventDefault();
+                eventBtnText.classList.add('hidden');
+                eventBtnLoader.classList.remove('hidden');
+
+                // Collect Team Members
+                const members = [];
+                document.querySelectorAll('.member-card').forEach(card => {
+                    const inputs = card.querySelectorAll('input');
+                    members.push({
+                        name: inputs[0].value,
+                        designation: inputs[1].value,
+                        phone: inputs[2].value
+                    });
+                });
+
+                const eventData = {
+                    eventName: document.getElementById('event_name').value,
+                    startDate: document.getElementById('start_date').value,
+                    endDate: document.getElementById('end_date').value,
+                    location: document.getElementById('event_location').value,
+                    description: document.getElementById('event_description').value,
+                    companyName: document.getElementById('comp_name').value,
+                    tagline: document.getElementById('comp_tagline').value,
+                    industry: document.getElementById('comp_industry').value,
+                    foundedYear: document.getElementById('comp_founded').value,
+                    officialPhone: document.getElementById('off_phone').value,
+                    alternatePhone: document.getElementById('alt_phone').value,
+                    officialEmail: document.getElementById('off_email').value,
+                    whatsappNumber: document.getElementById('whatsapp_num').value,
+                    addressLine: document.getElementById('addr_line').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('state').value,
+                    pincode: document.getElementById('pincode').value,
+                    country: document.getElementById('country').value,
+                    websiteUrl: document.getElementById('web_url').value,
+                    googleMapsLink: document.getElementById('maps_link').value,
+                    linkedin: document.getElementById('linkedin_url').value,
+                    instagram: document.getElementById('insta_url').value,
+                    facebook: document.getElementById('fb_url').value,
+                    twitter: document.getElementById('twitter_url').value,
+                    services: document.getElementById('services_offered').value,
+                    aboutCompany: document.getElementById('about_comp').value,
+                    teamMembers: members, // Array of objects now
+                    themeColor: document.getElementById('theme_color').value,
+                    saveContact: document.getElementById('setting_save_contact').checked,
+                    downloadCard: document.getElementById('setting_download_card').checked,
+                    whatsappBtn: document.getElementById('setting_whatsapp_btn').checked,
+                    logoBase64: logoBase64 ? logoBase64.split(',')[1] : null
+                };
+
+                try {
+                    const response = await fetch('/save-event', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ eventData: eventData })
+                    });
+
+                    const res = await response.json();
+                    
+                    if (res.success) {
+                        toastMe('Event Created Successfully!', '#10b981');
+                        
+                        // Generate vCard data for QR (Same as Botiscan)
+                        const vC = (val) => (val || '').replace(/\n/g, ' ');
+                        
+                        // Use first member name if available, otherwise fallback to event name
+                        const contactName = (eventData.teamMembers && eventData.teamMembers.length > 0) 
+                            ? eventData.teamMembers[0].name 
+                            : eventData.eventName;
+                        
+                        // Split name for vCard N format (Surname;Firstname)
+                        const nameParts = contactName.split(' ');
+                        const lastName = nameParts.length > 1 ? nameParts.pop() : '';
+                        const firstName = nameParts.join(' ') || contactName;
+
+                        const vCard = [
+                            'BEGIN:VCARD',
+                            'VERSION:3.0',
+                            `N:${vC(lastName)};${vC(firstName)};;;`,
+                            `FN:${vC(contactName)}`,
+                            `ORG:${vC(eventData.companyName)}`,
+                            `TEL;TYPE=WORK,VOICE:${vC(eventData.officialPhone)}`,
+                            `EMAIL;TYPE=WORK,INTERNET:${vC(eventData.officialEmail)}`,
+                            `ADR;TYPE=WORK:;;${vC(eventData.addressLine)};${vC(eventData.city)};${vC(eventData.state)};${vC(eventData.pincode)};${vC(eventData.country)}`,
+                            `URL:${vC(eventData.websiteUrl)}`,
+                            'END:VCARD'
+                        ].join('\n');
+
+                        // Update QR with vCard and Link
+                        const eventUrl = `https://leadscan-pro.app/event/${res.eventId}`;
+                        document.getElementById('generatedQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(vCard)}`;
+                        document.getElementById('eventLinkText').innerText = eventUrl;
+                        
+                        eventSuccessOverlay.classList.add('active');
+                        // Fix for desktop blank screen: Hide form, header and scroll to top
+                        document.getElementById('eventCreationForm').classList.add('hidden');
+                        document.querySelector('.modal-header').classList.add('hidden');
+                        // Ensure modal-body doesn't collapse
+                        document.querySelector('.modal-body').style.minHeight = '650px';
+                        document.querySelector('.event-modal').scrollTop = 0;
+                    } else {
+                        throw new Error(res.message || 'Failed to save event');
+                    }
+                } catch (err) {
+                    toastMe('Error: ' + err.message, '#ef4444');
+                } finally {
+                    eventBtnText.classList.remove('hidden');
+                    eventBtnLoader.classList.add('hidden');
+                }
+            };
+
+            // Success Overlay Helpers
+            window.copyEventLink = () => {
+                const link = document.getElementById('eventLinkText').innerText;
+                navigator.clipboard.writeText(link).then(() => {
+                    toastMe('Link Copied!', '#3b82f6');
+                });
+            };
+
+            window.downloadQR = async () => {
+                const qrImg = document.getElementById('generatedQR');
+                if (!qrImg || !qrImg.src) return;
+                
+                toastMe('Starting Download...', '#3b82f6');
+                try {
+                    const response = await fetch(qrImg.src);
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Event_QR_${new Date().getTime()}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                } catch (err) {
+                    console.error("Download failed", err);
+                    // Fallback to direct opening if CORS fails
+                    window.open(qrImg.src, '_blank');
+                    toastMe("Opened in New Tab. Right click to save.", "#f59e0b");
+                }
+            };
+
+            // Mode Switching
+            window.activeMode = 'normal';
+            window.setMode = (mode) => {
+                window.activeMode = mode;
+                document.getElementById('modeNormal').classList.toggle('active', mode === 'normal');
+                document.getElementById('modeEvent').classList.toggle('active', mode === 'event');
+                
+                const title = document.querySelector('h1');
+                const mainBtnLabel = document.getElementById('labelNormal');
+
+                if (mode === 'event') {
+                    title.innerText = 'Event Lead Capture';
+                    mainBtnLabel.innerText = 'Sync with Event Hub';
+                    toastMe('Switched to Event Mode', '#3b82f6');
+                } else {
+                    title.innerText = 'Lead Capture';
+                    mainBtnLabel.innerText = 'Analyze & Sync Card';
+                    toastMe('Switched to Normal Mode', '#10b981');
+                }
             };
         });
     </script>
