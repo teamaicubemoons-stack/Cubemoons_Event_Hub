@@ -86,6 +86,26 @@ async def save_event(request: dict):
         logger.error(f"Save Event Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/submit-lead")
+async def submit_lead(request: dict):
+    try:
+        # Request contains 'leadData'
+        payload = {
+            "action": "save_lead",
+            "leadData": request.get("leadData")
+        }
+        
+        resp = submit_to_sheets(payload)
+        
+        if resp and resp.status_code == 200:
+            return {"success": True, "message": "Lead submitted successfully"}
+        else:
+            raise Exception("Failed to save lead to Google Sheets")
+
+    except Exception as e:
+        logger.error(f"Submit Lead Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/proxy-image")
 async def proxy_image(url: str):
     if not url:

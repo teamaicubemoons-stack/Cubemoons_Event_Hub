@@ -46,6 +46,8 @@ function doPost(e) {
       result = saveData(postData.extractedData, postData.photo1Base64, postData.photo2Base64);
     } else if (action === 'save_event') {
       result = saveEventData(postData.eventData);
+    } else if (action === 'save_lead') {
+      result = saveLeadData(postData.leadData);
     } else if (action === 'read') {
       result = getSheetData(postData.sheetName);
     } else if (action === 'get_event') {
@@ -341,6 +343,46 @@ function getEventById(eventId) {
     }
     
     return { success: false, message: "Event not found" };
+}
+
+/**
+ * Save Lead Data from the QR Scan Form
+ */
+function saveLeadData(leadData) {
+  const SHEET_NAME = "QR Scanned Leads";
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+    sheet.appendRow([
+      "Timestamp", 
+      "Event/Card ID", 
+      "Owner/Company", 
+      "Visitor Name", 
+      "Visitor Mobile", 
+      "Visitor Email", 
+      "Visitor Organization", 
+      "Visitor Designation", 
+      "Message"
+    ]);
+    sheet.getRange(1, 1, 1, 9).setFontWeight("bold").setBackground("#f3f3f3");
+  }
+  
+  const timestamp = new Date();
+  sheet.appendRow([
+    timestamp,
+    leadData.eventId || "N/A",
+    leadData.ownerName || leadData.organization || "N/A",
+    leadData.fullName,
+    leadData.mobile,
+    leadData.email,
+    leadData.organization,
+    leadData.designation,
+    leadData.message
+  ]);
+  
+  return { success: true, message: "Lead saved successfully!" };
 }
 
 /**

@@ -36,10 +36,140 @@ interface ContactInfo {
   mapsLink?: string
 }
 
+interface LeadFormData {
+  fullName: string;
+  mobile: string;
+  email: string;
+  organization: string;
+  designation: string;
+  message: string;
+}
+
+function LeadForm({ onSubmit, cardOwner }: { onSubmit: (data: LeadFormData) => void, cardOwner: string }) {
+  const [formData, setFormData] = useState<LeadFormData>({
+    fullName: "",
+    mobile: "",
+    email: "",
+    organization: "",
+    designation: "",
+    message: ""
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    await onSubmit(formData);
+    setSubmitting(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
+      <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-8 border border-white/50 relative overflow-hidden">
+        {/* Abstract Background Element */}
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-100/50 rounded-full blur-3xl -z-10"></div>
+        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-100/50 rounded-full blur-3xl -z-10"></div>
+
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center p-3 bg-blue-600 text-white rounded-2xl shadow-lg mb-4">
+            <User className="w-6 h-6" />
+          </div>
+          <h2 className="text-3xl font-black text-slate-800 tracking-tight">Connect with</h2>
+          <p className="text-blue-600 font-bold uppercase tracking-widest text-xs mt-1">{cardOwner}</p>
+          <p className="text-slate-400 text-sm mt-4 px-4 font-medium">Please fill in your details to view the full profile and save contact information.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Pura Naam (Full Name)</label>
+            <input
+              required
+              type="text"
+              placeholder="Ex: Rajesh Kumar"
+              className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-700 font-semibold"
+              value={formData.fullName}
+              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Mobile / WhatsApp</label>
+              <input
+                required
+                type="tel"
+                placeholder="+91 00000 00000"
+                className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-700 font-semibold"
+                value={formData.mobile}
+                onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Email Address</label>
+              <input
+                required
+                type="email"
+                placeholder="rajesh@company.com"
+                className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-700 font-semibold"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Company ka Naam (Organization)</label>
+            <input
+              required
+              type="text"
+              placeholder="Ex: ABC Pvt Ltd"
+              className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-700 font-semibold"
+              value={formData.organization}
+              onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Job Title (Designation)</label>
+            <input
+              required
+              type="text"
+              placeholder="Ex: Marketing Manager"
+              className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-700 font-semibold"
+              value={formData.designation}
+              onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Chhota Message (Optional)</label>
+            <textarea
+              placeholder="Reason for contact..."
+              className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-slate-700 font-semibold min-h-[100px] resize-none"
+              value={formData.message}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+            />
+          </div>
+
+          <button
+            disabled={submitting}
+            type="submit"
+            className="w-full bg-slate-900 text-white font-black py-4 rounded-2xl shadow-xl flex items-center justify-center gap-3 transition-all active:scale-95 hover:bg-black mt-4 disabled:opacity-70"
+          >
+            {submitting ? "Submitting..." : "SUBMIT & VIEW PROFILE"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [screenSize, setScreenSize] = useState({ width: 1024 })
   const [contactInfo, setContactInfo] = useState<ContactInfo | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(true)
+  const [eventId, setEventId] = useState<string | null>(null)
 
   useEffect(() => {
     setScreenSize({ width: window.innerWidth })
@@ -47,10 +177,17 @@ function App() {
     window.addEventListener('resize', handleResize)
 
     const params = new URLSearchParams(window.location.search);
-    const eventId = params.get('id');
+    const id = params.get('id');
+    setEventId(id);
 
-    if (eventId) {
-      fetchEventData(eventId);
+    // Check if lead already submitted in this session
+    const hasSubmitted = sessionStorage.getItem(`lead_submitted_${id || 'default'}`);
+    if (hasSubmitted) {
+      setShowForm(false);
+    }
+
+    if (id) {
+      fetchEventData(id);
     } else {
       setContactInfo({
         firstName: "Satyendra",
@@ -136,6 +273,30 @@ function App() {
         });
       }
     } catch (err) { console.error(err); } finally { setLoading(false); }
+  };
+
+  const handleLeadSubmit = async (data: LeadFormData) => {
+    try {
+      const leadData = {
+        ...data,
+        eventId: eventId,
+        ownerName: contactInfo ? `${contactInfo.firstName} ${contactInfo.lastName}` : "Unknown",
+        ownerOrg: contactInfo?.organization || "N/A"
+      };
+
+      await fetch("/submit-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadData })
+      });
+      
+      sessionStorage.setItem(`lead_submitted_${eventId || 'default'}`, "true");
+      setShowForm(false);
+    } catch (e) {
+      console.error(e);
+      // Even if it fails, let them see the profile (optional choice, but better for UX)
+      setShowForm(false);
+    }
   };
 
   const generateVCard = (contact: ContactInfo): string => {
@@ -305,6 +466,13 @@ END:VCARD`.trim()
   }
 
   if (loading || !contactInfo) return null;
+
+  if (showForm) {
+    return <LeadForm 
+      cardOwner={`${contactInfo.firstName} ${contactInfo.lastName}`} 
+      onSubmit={handleLeadSubmit} 
+    />;
+  }
 
   const pageUrl = window.location.href;
   const hasSocials = contactInfo.linkedin || contactInfo.instagram || contactInfo.facebook || contactInfo.twitter;
