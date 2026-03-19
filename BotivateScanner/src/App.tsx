@@ -152,26 +152,11 @@ URL:${contact.website}
 END:VCARD`.trim()
   }
 
-  const downloadVCard = async () => {
+  const downloadVCard = () => {
     if (!contactInfo) return;
-    const vCard = generateVCard(contactInfo);
-    
-    // Attempt 1: Native Sharing (Direct to Contacts on most mobiles)
-    try {
-      if (typeof navigator.share !== 'undefined') {
-        const file = new File([vCard], `${contactInfo.firstName}.vcf`, { type: 'text/vcard' });
-        await navigator.share({
-          files: [file],
-          title: `Save ${contactInfo.firstName}'s Contact`,
-          text: 'Contact details'
-        });
-        return; // Success! No download window.
-      }
-    } catch (e) { console.warn("Share failed or canceled."); }
-
-    // Attempt 2: Direct Data Navigation (Forces 'Open with' prompt in many browsers)
-    // Using simple location.href to prevent double triggering or phantom files
-    window.location.href = "data:text/vcard;charset=utf-8," + encodeURIComponent(vCard);
+    const name = `${contactInfo.firstName} ${contactInfo.lastName}`;
+    const url = `/vcard-direct?name=${encodeURIComponent(name)}&org=${encodeURIComponent(contactInfo.organization)}&phone=${encodeURIComponent(contactInfo.phone)}&email=${encodeURIComponent(contactInfo.email)}`;
+    window.location.href = url;
   }
 
   const generateQRCodeDataURL = async (text: string, options = {}): Promise<string> => {

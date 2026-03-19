@@ -135,6 +135,18 @@ async def read_style():
 async def read_worker():
     return FileResponse(os.path.join(FRONTEND_DIR, "worker.js"))
 
+@app.get("/vcard-direct")
+async def vcard_direct(name: str, org: str, phone: str, email: str):
+    content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{name}\nORG:{org}\nTEL;TYPE=CELL,VOICE:+91{phone}\nEMAIL;TYPE=PREF,INTERNET:{email}\nEND:VCARD"
+    return Response(
+        content=content,
+        media_type="text/vcard",
+        headers={
+            "Content-Disposition": f'attachment; filename="{name}.vcf"',
+            "Content-Type": "text/vcard; charset=utf-8"
+        }
+    )
+
 if __name__ == "__main__":
     import uvicorn
     print("\n" + "="*80)
