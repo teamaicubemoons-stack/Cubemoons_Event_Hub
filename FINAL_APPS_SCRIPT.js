@@ -210,26 +210,32 @@ function saveEventData(eventData) {
     throw new Error("FAILED to access Spreadsheet: " + e.message);
   }
 
-  // --- Auto-create header row if sheet is empty ---
+  const ALL_HEADERS = [
+    "Timestamp", "Event ID", "Event Name", "Start Date", "End Date", "Location", "Description", 
+    "Member Name", "Designation", "Phone",
+    "Company Name", "Tagline", "Industry", "Founded Year", 
+    "Official Phone", "Alternate Phone", "Official Email", "WhatsApp Number", 
+    "Address Line 1", "City", "State", "Pincode", "Country", 
+    "Website URL", "Google Maps Link", "LinkedIn profile link", "Instagram profile link", 
+    "Facebook profile link", "Twitter profile link", "Services Provided", "About the company",
+    "Key Person Name", "Key Person Designation", "Key Person Phone", "Key Person Email"
+  ];
+  
+  // --- Auto-create or Patch header row ---
   if (sheet.getLastRow() === 0) {
-    const headers = [
-      "Timestamp",      // A
-      "Event ID",       // B
-      "Event Name",     // C
-      "Start Date",     // D
-      "End Date",       // E
-      "Location",       // F
-      "Description",    // G
-      "Member Name",    // H
-      "Designation",    // I
-      "Phone"           // J
-    ];
-    sheet.appendRow(headers);
-    sheet.getRange(1, 1, 1, headers.length)
+    sheet.appendRow(ALL_HEADERS);
+    sheet.getRange(1, 1, 1, ALL_HEADERS.length)
       .setFontWeight("bold")
       .setBackground("#d9e8fb")
       .setFontColor("#1a3a6b");
     sheet.setFrozenRows(1);
+  } else {
+    // Check if we need to patch old headers
+    const currentHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    if (currentHeaders.length < ALL_HEADERS.length) {
+       // Write new headers over the first row to ensure they match
+       sheet.getRange(1, 1, 1, ALL_HEADERS.length).setValues([ALL_HEADERS]);
+    }
   }
 
   const timestamp = new Date();
@@ -259,44 +265,57 @@ function saveEventData(eventData) {
   }
 
   const members = eventData.teamMembers || [];
+  
+  // Extract Company Profile fields from eventData
+  const cName = eventData.companyName || "";
+  const cTagline = eventData.tagline || "";
+  const cInd = eventData.industry || "";
+  const cYear = eventData.foundedYear || "";
+  const cOffPh = eventData.officialPhone || "";
+  const cAltPh = eventData.alternatePhone || "";
+  const cOffEm = eventData.officialEmail || "";
+  const cWa = eventData.whatsappNumber || "";
+  const cAddr = eventData.addressLine || "";
+  const cCity = eventData.city || "";
+  const cState = eventData.state || "";
+  const cPin = eventData.pincode || "";
+  const cCoun = eventData.country || "";
+  const cWeb = eventData.websiteUrl || "";
+  const cMaps = eventData.googleMapsLink || "";
+  const cLi = eventData.linkedin || "";
+  const cIg = eventData.instagram || "";
+  const cFb = eventData.facebook || "";
+  const cTw = eventData.twitter || "";
+  const cServ = eventData.services || "";
+  const cAbo = eventData.aboutCompany || "";
+  const kpName = eventData.keyPersonName || "";
+  const kpDesg = eventData.keyPersonDesignation || "";
+  const kpPho = eventData.keyPersonPhone || "";
+  const kpEma = eventData.keyPersonEmail || "";
 
   if (members.length === 0) {
-    // No members — save one row with event details only
+    // No members — save one row with event & company details
     sheet.appendRow([
-      timestamp,
-      eventId,
-      eventData.eventName   || "",
-      eventData.startDate   || "",
-      eventData.endDate     || "",
-      eventData.location    || "",
-      eventData.description || "",
-      "", "", ""  // Member cols empty
+      timestamp, eventId, eventData.eventName || "", eventData.startDate || "", eventData.endDate || "", eventData.location || "", eventData.description || "",
+      "", "", "",  // Member cols empty
+      cName, cTagline, cInd, cYear, cOffPh, cAltPh, cOffEm, cWa, cAddr, cCity, cState, cPin, cCoun,
+      cWeb, cMaps, cLi, cIg, cFb, cTw, cServ, cAbo, kpName, kpDesg, kpPho, kpEma
     ]);
   } else {
     members.forEach((m, index) => {
       if (index === 0) {
-        // First row: Full event details + Member 1
+        // First row: Full event details + Member 1 + Company details
         sheet.appendRow([
-          timestamp,
-          eventId,
-          eventData.eventName   || "",
-          eventData.startDate   || "",
-          eventData.endDate     || "",
-          eventData.location    || "",
-          eventData.description || "",
-          m.name        || "",
-          m.designation || "",
-          m.phone       || ""
+          timestamp, eventId, eventData.eventName || "", eventData.startDate || "", eventData.endDate || "", eventData.location || "", eventData.description || "",
+          m.name || "", m.designation || "", m.phone || "",
+          cName, cTagline, cInd, cYear, cOffPh, cAltPh, cOffEm, cWa, cAddr, cCity, cState, cPin, cCoun,
+          cWeb, cMaps, cLi, cIg, cFb, cTw, cServ, cAbo, kpName, kpDesg, kpPho, kpEma
         ]);
       } else {
         // Subsequent rows: Event ID only (to link back) + member info
         sheet.appendRow([
-          "",       // A: Timestamp blank
-          eventId,  // B: Event ID (for reference)
-          "", "", "", "", "",          // C–G: blank
-          m.name        || "",         // H
-          m.designation || "",         // I
-          m.phone       || ""          // J
+          "", eventId, "", "", "", "", "",
+          m.name || "", m.designation || "", m.phone || ""
         ]);
       }
     });
