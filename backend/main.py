@@ -133,6 +133,21 @@ async def get_event_specific_data(request: dict):
         logger.error(f"Get Event Data Error: {e}")
         return {"success": False, "message": str(e)}
 
+@app.post("/submit-visitor-and-get-contact")
+async def submit_visitor_and_get_contact(request: dict):
+    try:
+        payload = {
+            "action": "save_visitor_and_get_contact",
+            "visitorData": request
+        }
+        resp = submit_to_sheets(payload)
+        if resp and resp.status_code == 200:
+            return resp.json()
+        return {"success": False, "message": "Failed to process visitor data"}
+    except Exception as e:
+        logger.error(f"Submit Visitor Error: {e}")
+        return {"success": False, "message": str(e)}
+
 @app.get("/proxy-image")
 async def proxy_image(url: str):
     if not url:
@@ -172,6 +187,10 @@ async def read_index():
 @app.get("/leads")
 async def read_leads():
     return FileResponse(os.path.join(FRONTEND_DIR, "leads.html"))
+
+@app.get("/visitor-form/{event_id}")
+async def serve_visitor_form(event_id: str):
+    return FileResponse(os.path.join(FRONTEND_DIR, "visitor-form", "index.html"))
 
 # Map individual files for root level access if needed by the index.html
 @app.get("/style.css")

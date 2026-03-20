@@ -58,6 +58,8 @@ function doPost(e) {
       result = saveEventCardData(postData.extractedData, postData.photo1Base64, postData.photo2Base64, postData.eventInfo);
     } else if (action === 'get_event_data') {
       result = getEventSpecificData(postData.eventId, postData.eventName);
+    } else if (action === 'save_visitor_and_get_contact') {
+      result = saveVisitorAndGetContact(postData.visitorData);
     } else {
       throw new Error("Invalid action specified: " + action);
     }
@@ -514,6 +516,88 @@ function saveLeadData(leadData) {
   ]);
   
   return { success: true, message: "Lead saved successfully!" };
+}
+
+/**
+ * Save new Visitor from QR code form and return Event Contact Info for vCard 
+ */
+function saveVisitorAndGetContact(visitorData) {
+  const SHEET_NAME = "Visitor Details";
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  
+  // 1. Save the visitor details
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+    sheet.appendRow([
+      "Timestamp", 
+      "Event ID",
+      "Visitor Name", 
+      "Visitor Mobile", 
+      "Visitor Email", 
+      "Visitor Organization", 
+      "Visitor Designation", 
+      "Message"
+    ]);
+    sheet.getRange(1, 1, 1, 8).setFontWeight("bold").setBackground("#f3f3f3");
+  }
+  
+  const timestamp = new Date();
+  sheet.appendRow([
+    timestamp,
+    visitorData.eventId || "N/A",
+    visitorData.visitorName || "",
+    visitorData.visitorMobile || "",
+    visitorData.visitorEmail || "",
+    visitorData.visitorOrg || "",
+    visitorData.visitorDesig || "",
+    visitorData.message || ""
+  ]);
+
+  // 2. Fetch the Event Organizer contact info
+  const eventSheet = ss.getSheetByName("Event Details");
+  let contactInfo = null;
+  
+  if (eventSheet) {
+    const data = eventSheet.getDataRange().getValues();
+    const headers = data[0];
+    
+    // Find the row where Column B matches eventId
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][1]).trim().toLowerCase() === String(visitorData.eventId).trim().toLowerCase()) {
+        const rowData = {};
+        headers.forEach((h, idx) => {
+          rowData[h] = data[i][idx];
+        });
+        
+        let managerName = rowData["Member Name"] || rowData["Event Name"];
+        if (rowData["Key Person Name"]) managerName = rowData["Key Person Name"]; // Fallback profile key person
+        
+        contactInfo = {
+          name: managerName,
+          company: rowData["Company Name"] || rowData["Event Name"],
+          phone: rowData["Phone"] || rowData["Official Phone"] || "N/A",
+          email: rowData["Official Email"] || "N/A",
+          address: rowData["Address Line 1"] || rowData["Location"] || "",
+          website: rowData["Website URL"] || ""
+        };
+        break;
+      }
+    }
+  }
+
+  if (!contactInfo) {
+    // If not found, return empty placeholder
+    contactInfo = {
+       name: "Event Organizer",
+       company: visitorData.eventId,
+       phone: "",
+       email: "",
+       website: ""
+    }
+  }
+
+  return { success: true, message: "Visitor saved successfully", contactInfo: contactInfo };
 }
 
 /**

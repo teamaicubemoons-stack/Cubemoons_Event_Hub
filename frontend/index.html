@@ -503,9 +503,8 @@
                     </div>
                     <h3 class="text-3xl font-bold text-gray-900 mb-2">Event Created ✅</h3>
                     <p class="text-gray-500 max-w-sm mx-auto mb-8">Your event has been successfully registered. Share the link or QR code with your team.</p>
-                    
                     <div class="qr-placeholder">
-                        <img id="generatedQR" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://leadscan-pro.app/event/demo" alt="QR Code">
+                        <img id="generatedQR" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://business-card-event-reader.onrender.com/visitor-form/demo" alt="QR Code">
                     </div>
 
                     <div class="w-full max-w-md bg-gray-50 p-4 rounded-2xl border border-gray-100 mb-10 flex items-center justify-between">
@@ -832,25 +831,9 @@
                 dbBtn.style.display = 'flex';
                 dbBtn.onclick = () => openDbView(ev.id, ev.name);
                 
-                // Generate vCard QR
-                const vC = (val) => (val || '').replace(/\n/g, ' ');
-                const contactName = ev.keyPersonName || ev.name || 'Event Contact';
-                const nameParts = contactName.split(' ');
-                const lastName = nameParts.length > 1 ? nameParts.pop() : '';
-                const firstName = nameParts.join(' ') || contactName;
-
-                const vCard = [
-                    'BEGIN:VCARD', 'VERSION:3.0',
-                    `N:${vC(lastName)};${vC(firstName)};;;`,
-                    `FN:${vC(contactName)}`,
-                    `ORG:${vC(ev.companyName || '')}`,
-                    `TEL;TYPE=WORK,VOICE:${vC(ev.officialPhone || '')}`,
-                    `EMAIL;TYPE=WORK,INTERNET:${vC(ev.officialEmail || '')}`,
-                    `ADR;TYPE=WORK:;;${vC(ev.addressLine || '')};${vC(ev.city || '')};${vC(ev.state || '')};${vC(ev.pincode || '')};${vC(ev.country || 'India')}`,
-                    `URL:${vC(ev.websiteUrl || '')}`,
-                    'END:VCARD'
-                ].join('\n');
-                document.getElementById('displayQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(vCard)}`;
+                // Generate Event Form QR
+                const eventFormUrl = `https://business-card-event-reader.onrender.com/visitor-form/${ev.id}`;
+                document.getElementById('displayQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(eventFormUrl)}`;
 
                 if (!isPopState) {
                     window.history.pushState({view: 'scan', event: ev}, '');
@@ -1235,35 +1218,9 @@
                     if (res.success) {
                         toastMe('Event Created Successfully!', '#10b981');
                         
-                        // Generate vCard data for QR (Same as Botiscan)
-                        const vC = (val) => (val || '').replace(/\n/g, ' ');
-                        
-                        // Use first member name if available, otherwise fallback to event name
-                        const contactName = (eventData.teamMembers && eventData.teamMembers.length > 0) 
-                            ? eventData.teamMembers[0].name 
-                            : eventData.eventName;
-                        
-                        // Split name for vCard N format (Surname;Firstname)
-                        const nameParts = contactName.split(' ');
-                        const lastName = nameParts.length > 1 ? nameParts.pop() : '';
-                        const firstName = nameParts.join(' ') || contactName;
-
-                        const vCard = [
-                            'BEGIN:VCARD',
-                            'VERSION:3.0',
-                            `N:${vC(lastName)};${vC(firstName)};;;`,
-                            `FN:${vC(contactName)}`,
-                            `ORG:${vC(eventData.companyName)}`,
-                            `TEL;TYPE=WORK,VOICE:${vC(eventData.officialPhone)}`,
-                            `EMAIL;TYPE=WORK,INTERNET:${vC(eventData.officialEmail)}`,
-                            `ADR;TYPE=WORK:;;${vC(eventData.addressLine)};${vC(eventData.city)};${vC(eventData.state)};${vC(eventData.pincode)};${vC(eventData.country)}`,
-                            `URL:${vC(eventData.websiteUrl)}`,
-                            'END:VCARD'
-                        ].join('\n');
-
-                        // Update QR with vCard and Link
-                        const eventUrl = `https://leadscan-pro.app/event/${res.eventId}`;
-                        document.getElementById('generatedQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(vCard)}`;
+                        // Update QR to point to Visitor Form
+                        const eventUrl = `https://business-card-event-reader.onrender.com/visitor-form/${res.eventId}`;
+                        document.getElementById('generatedQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(eventUrl)}`;
                         document.getElementById('eventLinkText').innerText = eventUrl;
                         
                         eventSuccessOverlay.classList.add('active');
