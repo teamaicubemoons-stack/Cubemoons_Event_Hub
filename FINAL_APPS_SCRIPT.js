@@ -60,6 +60,10 @@ function doPost(e) {
       result = getEventSpecificData(postData.eventId, postData.eventName);
     } else if (action === 'save_visitor_and_get_contact') {
       result = saveVisitorAndGetContact(postData.visitorData);
+    } else if (action === 'get_company_profile') {
+      result = getCompanyProfile();
+    } else if (action === 'save_company_profile') {
+      result = saveCompanyProfile(postData.profileData);
     } else {
       throw new Error("Invalid action specified: " + action);
     }
@@ -94,7 +98,6 @@ function extractData(photo1Base64) {
 
 function saveData(extractedData, photo1Base64, photo2Base64) {
   // --- CONFIGURATION ---
-  const SHEET_ID = "1c3v7DcBqfMK8yzPyMs3StwNj7bg7yc5gSnEsHnmuBlg";
   const FOLDER_ID = "1zggOUpg0SfMdi5LAXIfIWqZcBGMGHmMz";
   const SHEET_NAME = "Ai Card";
   // ---------------------
@@ -197,7 +200,6 @@ function saveData(extractedData, photo1Base64, photo2Base64) {
 }
 
 function saveEventData(eventData) {
-  const SHEET_ID = "1c3v7DcBqfMK8yzPyMs3StwNj7bg7yc5gSnEsHnmuBlg";
   const SHEET_NAME = "Event Details";
 
   // --- Open Sheet ---
@@ -210,32 +212,26 @@ function saveEventData(eventData) {
     throw new Error("FAILED to access Spreadsheet: " + e.message);
   }
 
-  const ALL_HEADERS = [
-    "Timestamp", "Event ID", "Event Name", "Start Date", "End Date", "Location", "Description", 
-    "Member Name", "Designation", "Phone",
-    "Company Name", "Tagline", "Industry", "Founded Year", 
-    "Official Phone", "Alternate Phone", "Official Email", "WhatsApp Number", 
-    "Address Line 1", "City", "State", "Pincode", "Country", 
-    "Website URL", "Google Maps Link", "LinkedIn profile link", "Instagram profile link", 
-    "Facebook profile link", "Twitter profile link", "Services Provided", "About the company",
-    "Key Person Name", "Key Person Designation", "Key Person Phone", "Key Person Email"
-  ];
-  
-  // --- Auto-create or Patch header row ---
+  // --- Auto-create header row if sheet is empty ---
   if (sheet.getLastRow() === 0) {
-    sheet.appendRow(ALL_HEADERS);
-    sheet.getRange(1, 1, 1, ALL_HEADERS.length)
+    const headers = [
+      "Timestamp",      // A
+      "Event ID",       // B
+      "Event Name",     // C
+      "Start Date",     // D
+      "End Date",       // E
+      "Location",       // F
+      "Description",    // G
+      "Member Name",    // H
+      "Designation",    // I
+      "Phone"           // J
+    ];
+    sheet.appendRow(headers);
+    sheet.getRange(1, 1, 1, headers.length)
       .setFontWeight("bold")
       .setBackground("#d9e8fb")
       .setFontColor("#1a3a6b");
     sheet.setFrozenRows(1);
-  } else {
-    // Check if we need to patch old headers
-    const currentHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    if (currentHeaders.length < ALL_HEADERS.length) {
-       // Write new headers over the first row to ensure they match
-       sheet.getRange(1, 1, 1, ALL_HEADERS.length).setValues([ALL_HEADERS]);
-    }
   }
 
   const timestamp = new Date();
@@ -265,57 +261,44 @@ function saveEventData(eventData) {
   }
 
   const members = eventData.teamMembers || [];
-  
-  // Extract Company Profile fields from eventData
-  const cName = eventData.companyName || "";
-  const cTagline = eventData.tagline || "";
-  const cInd = eventData.industry || "";
-  const cYear = eventData.foundedYear || "";
-  const cOffPh = eventData.officialPhone || "";
-  const cAltPh = eventData.alternatePhone || "";
-  const cOffEm = eventData.officialEmail || "";
-  const cWa = eventData.whatsappNumber || "";
-  const cAddr = eventData.addressLine || "";
-  const cCity = eventData.city || "";
-  const cState = eventData.state || "";
-  const cPin = eventData.pincode || "";
-  const cCoun = eventData.country || "";
-  const cWeb = eventData.websiteUrl || "";
-  const cMaps = eventData.googleMapsLink || "";
-  const cLi = eventData.linkedin || "";
-  const cIg = eventData.instagram || "";
-  const cFb = eventData.facebook || "";
-  const cTw = eventData.twitter || "";
-  const cServ = eventData.services || "";
-  const cAbo = eventData.aboutCompany || "";
-  const kpName = eventData.keyPersonName || "";
-  const kpDesg = eventData.keyPersonDesignation || "";
-  const kpPho = eventData.keyPersonPhone || "";
-  const kpEma = eventData.keyPersonEmail || "";
 
   if (members.length === 0) {
-    // No members — save one row with event & company details
+    // No members — save one row with event details only
     sheet.appendRow([
-      timestamp, eventId, eventData.eventName || "", eventData.startDate || "", eventData.endDate || "", eventData.location || "", eventData.description || "",
-      "", "", "",  // Member cols empty
-      cName, cTagline, cInd, cYear, cOffPh, cAltPh, cOffEm, cWa, cAddr, cCity, cState, cPin, cCoun,
-      cWeb, cMaps, cLi, cIg, cFb, cTw, cServ, cAbo, kpName, kpDesg, kpPho, kpEma
+      timestamp,
+      eventId,
+      eventData.eventName   || "",
+      eventData.startDate   || "",
+      eventData.endDate     || "",
+      eventData.location    || "",
+      eventData.description || "",
+      "", "", ""  // Member cols empty
     ]);
   } else {
     members.forEach((m, index) => {
       if (index === 0) {
-        // First row: Full event details + Member 1 + Company details
+        // First row: Full event details + Member 1
         sheet.appendRow([
-          timestamp, eventId, eventData.eventName || "", eventData.startDate || "", eventData.endDate || "", eventData.location || "", eventData.description || "",
-          m.name || "", m.designation || "", m.phone || "",
-          cName, cTagline, cInd, cYear, cOffPh, cAltPh, cOffEm, cWa, cAddr, cCity, cState, cPin, cCoun,
-          cWeb, cMaps, cLi, cIg, cFb, cTw, cServ, cAbo, kpName, kpDesg, kpPho, kpEma
+          timestamp,
+          eventId,
+          eventData.eventName   || "",
+          eventData.startDate   || "",
+          eventData.endDate     || "",
+          eventData.location    || "",
+          eventData.description || "",
+          m.name        || "",
+          m.designation || "",
+          m.phone       || ""
         ]);
       } else {
         // Subsequent rows: Event ID only (to link back) + member info
         sheet.appendRow([
-          "", eventId, "", "", "", "", "",
-          m.name || "", m.designation || "", m.phone || ""
+          "",       // A: Timestamp blank
+          eventId,  // B: Event ID (for reference)
+          "", "", "", "", "",          // C–G: blank
+          m.name        || "",         // H
+          m.designation || "",         // I
+          m.phone       || ""          // J
         ]);
       }
     });
@@ -635,6 +618,35 @@ function saveVisitorAndGetContact(visitorData) {
     visitorData.message || ""
   ]);
 
+  // 3. Merging with Global Company Profile
+  const globalProfile = getCompanyProfile().profile;
+  if (globalProfile && globalProfile.companyName) {
+    contactInfo = {
+      name: globalProfile.keyPersonName || contactInfo.name,
+      company: globalProfile.companyName,
+      tagline: globalProfile.tagline || "",
+      industry: globalProfile.industry || "",
+      foundedYear: globalProfile.foundedYear || "",
+      // Use Key Person's Direct Info if available, otherwise fallback to Official
+      phone: globalProfile.keyPersonPhone || globalProfile.officialPhone || "N/A",
+      altPhone: globalProfile.alternatePhone || "",
+      email: globalProfile.keyPersonEmail || globalProfile.officialEmail || "N/A",
+      whatsapp: globalProfile.whatsappNumber || "",
+      address: globalProfile.addressLine || "",
+      city: globalProfile.city || "",
+      state: globalProfile.state || "",
+      pincode: globalProfile.pincode || "",
+      country: globalProfile.country || "",
+      website: globalProfile.websiteUrl || "",
+      linkedin: globalProfile.linkedin || "",
+      twitter: globalProfile.twitter || "",
+      facebook: globalProfile.facebook || "",
+      instagram: globalProfile.instagram || "",
+      services: globalProfile.services || "",
+      about: globalProfile.aboutCompany || ""
+    };
+  }
+
   return { success: true, message: "Visitor saved successfully", contactInfo: contactInfo };
 }
 
@@ -669,4 +681,109 @@ function getSheetData(SHEET_NAME) {
   }
   
   return { success: true, data: data };
+}
+
+/**
+ * Fetch Company Profile from 'Company Profile' Sheet
+ */
+function getCompanyProfile() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = ss.getSheetByName("Company Profile");
+  
+  if (!sheet || sheet.getLastRow() < 2) {
+    return { success: true, profile: {} };
+  }
+  
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const lastRow = sheet.getRange(sheet.getLastRow(), 1, 1, sheet.getLastColumn()).getValues()[0];
+  
+  const profile = {};
+  headers.forEach((h, i) => {
+    // Map sheet headers to frontend profile keys
+    const hTrim = h ? h.trim() : "";
+    if (!hTrim || hTrim === "Timestamp") return;
+    
+    // Reverse mapping
+    if (hTrim === "Company Name") profile.companyName = lastRow[i];
+    if (hTrim === "Tagline") profile.tagline = lastRow[i];
+    if (hTrim === "Industry") profile.industry = lastRow[i];
+    if (hTrim === "Founded Year") profile.foundedYear = lastRow[i];
+    if (hTrim === "Official Phone") profile.officialPhone = lastRow[i];
+    if (hTrim === "Alternate Phone") profile.alternatePhone = lastRow[i];
+    if (hTrim === "Official Email") profile.officialEmail = lastRow[i];
+    if (hTrim === "WhatsApp Number") profile.whatsappNumber = lastRow[i];
+    if (hTrim === "Address Line 1") profile.addressLine = lastRow[i];
+    if (hTrim === "City") profile.city = lastRow[i];
+    if (hTrim === "State") profile.state = lastRow[i];
+    if (hTrim === "Pincode") profile.pincode = lastRow[i];
+    if (hTrim === "Country") profile.country = lastRow[i];
+    if (hTrim === "Website URL") profile.websiteUrl = lastRow[i];
+    if (hTrim === "Google Maps Link") profile.googleMapsLink = lastRow[i];
+    if (hTrim === "LinkedIn") profile.linkedin = lastRow[i];
+    if (hTrim === "Instagram") profile.instagram = lastRow[i];
+    if (hTrim === "Facebook") profile.facebook = lastRow[i];
+    if (hTrim === "Twitter") profile.twitter = lastRow[i];
+    if (hTrim === "Services Provided") profile.services = lastRow[i];
+    if (hTrim === "About the company") profile.aboutCompany = lastRow[i];
+    if (hTrim === "Key Person Name") profile.keyPersonName = lastRow[i];
+    if (hTrim === "Key Person Designation") profile.keyPersonDesignation = lastRow[i];
+    if (hTrim === "Key Person Phone") profile.keyPersonPhone = lastRow[i];
+    if (hTrim === "Key Person Email") profile.keyPersonEmail = lastRow[i];
+  });
+
+  return { success: true, profile: profile };
+}
+
+/**
+ * Save Company Profile to 'Company Profile' Sheet
+ */
+function saveCompanyProfile(profileData) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = ss.getSheetByName("Company Profile");
+  
+  if (!sheet) return { success: false, message: "Company Profile sheet not found!" };
+  
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const newRow = new Array(headers.length).fill("");
+  newRow[0] = new Date(); // Timestamp
+  
+  headers.forEach((h, i) => {
+    const hTrim = h ? h.trim() : "";
+    if (!hTrim || hTrim === "Timestamp") return;
+    
+    if (hTrim === "Company Name") newRow[i] = profileData.companyName || "";
+    if (hTrim === "Tagline") newRow[i] = profileData.tagline || "";
+    if (hTrim === "Industry") newRow[i] = profileData.industry || "";
+    if (hTrim === "Founded Year") newRow[i] = profileData.foundedYear || "";
+    if (hTrim === "Official Phone") newRow[i] = profileData.officialPhone || "";
+    if (hTrim === "Alternate Phone") newRow[i] = profileData.alternatePhone || "";
+    if (hTrim === "Official Email") newRow[i] = profileData.officialEmail || "";
+    if (hTrim === "WhatsApp Number") newRow[i] = profileData.whatsappNumber || "";
+    if (hTrim === "Address Line 1") newRow[i] = profileData.addressLine || "";
+    if (hTrim === "City") newRow[i] = profileData.city || "";
+    if (hTrim === "State") newRow[i] = profileData.state || "";
+    if (hTrim === "Pincode") newRow[i] = profileData.pincode || "";
+    if (hTrim === "Country") newRow[i] = profileData.country || "";
+    if (hTrim === "Website URL") newRow[i] = profileData.websiteUrl || "";
+    if (hTrim === "Google Maps Link") newRow[i] = profileData.googleMapsLink || "";
+    if (hTrim === "LinkedIn") newRow[i] = profileData.linkedin || "";
+    if (hTrim === "Instagram") newRow[i] = profileData.instagram || "";
+    if (hTrim === "Facebook") newRow[i] = profileData.facebook || "";
+    if (hTrim === "Twitter") newRow[i] = profileData.twitter || "";
+    if (hTrim === "Services Provided") newRow[i] = profileData.services || "";
+    if (hTrim === "About the company") newRow[i] = profileData.aboutCompany || "";
+    if (hTrim === "Key Person Name") newRow[i] = profileData.keyPersonName || "";
+    if (hTrim === "Key Person Designation") newRow[i] = profileData.keyPersonDesignation || "";
+    if (hTrim === "Key Person Phone") newRow[i] = profileData.keyPersonPhone || "";
+    if (hTrim === "Key Person Email") newRow[i] = profileData.keyPersonEmail || "";
+  });
+
+  if (sheet.getLastRow() < 2) {
+    sheet.appendRow(newRow);
+  } else {
+    // Overwrite row 2 to always keep latest 
+    sheet.getRange(2, 1, 1, newRow.length).setValues([newRow]);
+  }
+  
+  return { success: true, message: "Company profile explicitly saved in the Sheet." };
 }

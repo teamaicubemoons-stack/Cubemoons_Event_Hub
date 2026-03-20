@@ -1138,7 +1138,7 @@
                 };
             }
 
-            // Load stored logo if exists
+            // Load stored logo if exists locally (can keep this for UI)
             const _storedProf = JSON.parse(localStorage.getItem('botivate_profile') || '{}');
             if (_storedProf.logoBase64 && logoPreview) {
                 logoBase64 = _storedProf.logoBase64;
@@ -1163,8 +1163,13 @@
                     });
                 });
 
-                // Load profile from localStorage
-                const prof = JSON.parse(localStorage.getItem('botivate_profile') || '{}');
+                // Load profile from Sheets
+                let prof = {};
+                try {
+                    const profResp = await fetch('/get-company-profile');
+                    const profData = await profResp.json();
+                    if (profData.success) prof = profData.profile;
+                } catch(e) { console.error("Profile fetch error", e); }
 
                 const eventData = {
                     eventName: document.getElementById('event_name').value,
@@ -1276,14 +1281,13 @@
         });
 
         // ===== PROFILE DRAWER FUNCTIONS =====
-        function openProfileDrawer() {
+        async function openProfileDrawer() {
             const drawer = document.getElementById('profileDrawer');
             const backdrop = document.getElementById('profileBackdrop');
             backdrop.style.display = 'block';
             setTimeout(() => { drawer.style.right = '0'; }, 10);
 
-            // Pre-fill from localStorage
-            const prof = JSON.parse(localStorage.getItem('botivate_profile') || '{}');
+            // Clear values first
             const fields = {
                 'prof_comp_name': 'companyName', 'prof_comp_tagline': 'tagline',
                 'prof_comp_founded': 'foundedYear', 'prof_off_phone': 'officialPhone',
@@ -1298,22 +1302,22 @@
                 'prof_kp_designation': 'keyPersonDesignation', 'prof_kp_phone': 'keyPersonPhone',
                 'prof_kp_email': 'keyPersonEmail'
             };
-            Object.entries(fields).forEach(([elId, key]) => {
-                const el = document.getElementById(elId);
-                if (el && prof[key]) el.value = prof[key];
-            });
-            // Industry select
-            const indEl = document.getElementById('prof_comp_industry');
-            if (indEl && prof.industry) indEl.value = prof.industry;
-            // Color
-            const colEl = document.getElementById('prof_theme_color');
-            if (colEl && prof.themeColor) colEl.value = prof.themeColor;
-            // Logo
-            if (prof.logoBase64) {
-                const prev = document.getElementById('prof_logo_preview');
-                const ph = document.getElementById('prof_logo_placeholder');
-                if (prev) { prev.src = prof.logoBase64; prev.style.display = 'block'; }
-                if (ph) ph.style.display = 'none';
+            
+            // Fetch from Sheets
+            try {
+                const response = await fetch('/get-company-profile');
+                const res = await response.json();
+                if (res.success && res.profile) {
+                    const prof = res.profile;
+                    Object.entries(fields).forEach(([elId, key]) => {
+                        const el = document.getElementById(elId);
+                        if (el) el.value = prof[key] || '';
+                    });
+                    const indEl = document.getElementById('prof_comp_industry');
+                    if (indEl && prof.industry) indEl.value = prof.industry;
+                }
+            } catch (err) {
+                console.error("Failed to sync profile from sheet", err);
             }
         }
 
@@ -1324,7 +1328,8 @@
             setTimeout(() => { backdrop.style.display = 'none'; }, 350);
         }
 
-        function saveProfile() {
+        async function saveProfile() {
+            const btn = document.getElementById('openProfileBtn');
             const fields = {
                 companyName: 'prof_comp_name', tagline: 'prof_comp_tagline',
                 industry: 'prof_comp_industry', foundedYear: 'prof_comp_founded',
@@ -1345,29 +1350,33 @@
                 if (el) prof[key] = el.value;
             });
 
-            // Save logo
-            const prevEl = document.getElementById('prof_logo_preview');
-            if (prevEl && prevEl.src && prevEl.style.display !== 'none') {
-                prof.logoBase64 = prevEl.src;
+            try {
+                const response = await fetch('/save-company-profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ profileData: prof })
+                });
+                const res = await response.json();
+                
+                if (res.success) {
+                    if (btn) {
+                        btn.innerHTML = '<svg style="width:17px;height:17px;color:#16a34a;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>';
+                        btn.style.background = 'linear-gradient(135deg,#dcfce7,#bbf7d0)';
+                        btn.style.borderColor = '#86efac';
+                        setTimeout(() => {
+                            btn.innerHTML = '<svg style="width:17px;height:17px;color:#4f46e5;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>';
+                            btn.style.background = 'linear-gradient(135deg,#e0e7ff,#dbeafe)';
+                            btn.style.borderColor = '#c7d2fe';
+                        }, 2000);
+                    }
+                    closeProfileDrawer();
+                    alert('✅ Profile saved to Google Sheets successfully! It will be used in all events.');
+                } else {
+                    alert('Failed to save profile: ' + res.message);
+                }
+            } catch (err) {
+                alert('Connection error. Please try again.');
             }
-
-            localStorage.setItem('botivate_profile', JSON.stringify(prof));
-
-            // Show checkmark on profile button briefly
-            const btn = document.getElementById('openProfileBtn');
-            if (btn) {
-                btn.innerHTML = '<svg style="width:17px;height:17px;color:#16a34a;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>';
-                btn.style.background = 'linear-gradient(135deg,#dcfce7,#bbf7d0)';
-                btn.style.borderColor = '#86efac';
-                setTimeout(() => {
-                    btn.innerHTML = '<svg style="width:17px;height:17px;color:#4f46e5;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>';
-                    btn.style.background = 'linear-gradient(135deg,#e0e7ff,#dbeafe)';
-                    btn.style.borderColor = '#c7d2fe';
-                }, 2000);
-            }
-
-            closeProfileDrawer();
-            alert('✅ Profile saved successfully! It will be used in all future events.');
         }
     </script>
     <!-- Camera Overlay -->

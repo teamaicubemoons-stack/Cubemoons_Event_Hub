@@ -144,6 +144,32 @@ async def get_event_specific_data(request: dict):
         logger.error(f"Get Event Data Error: {e}")
         return {"success": False, "message": str(e)}
 
+@app.get("/get-company-profile")
+async def get_company_profile():
+    try:
+        resp = submit_to_sheets({"action": "get_company_profile"})
+        if resp and resp.status_code == 200:
+            return resp.json()
+        return {"success": False, "message": "Failed to fetch profile"}
+    except Exception as e:
+        logger.error(f"Get Company Profile Error: {e}")
+        return {"success": False, "message": str(e)}
+
+@app.post("/save-company-profile")
+async def save_company_profile(request: dict):
+    try:
+        payload = {
+            "action": "save_company_profile",
+            "profileData": request.get("profileData")
+        }
+        resp = submit_to_sheets(payload)
+        if resp and resp.status_code == 200:
+            return resp.json()
+        return {"success": False, "message": "Failed to save profile"}
+    except Exception as e:
+        logger.error(f"Save Company Profile Error: {e}")
+        return {"success": False, "message": str(e)}
+
 @app.post("/submit-visitor-and-get-contact")
 async def submit_visitor_and_get_contact(request: dict):
     try:
