@@ -56,6 +56,8 @@ function doPost(e) {
       result = getEventList();
     } else if (action === 'save_event_card') {
       result = saveEventCardData(postData.extractedData, postData.photo1Base64, postData.photo2Base64, postData.eventInfo);
+    } else if (action === 'get_event_data') {
+      result = getEventSpecificData(postData.eventId, postData.eventName);
     } else {
       throw new Error("Invalid action specified: " + action);
     }
@@ -194,9 +196,9 @@ function saveData(extractedData, photo1Base64, photo2Base64) {
 
 function saveEventData(eventData) {
   const SHEET_ID = "1c3v7DcBqfMK8yzPyMs3StwNj7bg7yc5gSnEsHnmuBlg";
-  const FOLDER_ID = "1zggOUpg0SfMdi5LAXIfIWqZcBGMGHmMz";
   const SHEET_NAME = "Event Details";
 
+  // --- Open Sheet ---
   let sheet;
   try {
     const ss = SpreadsheetApp.openById(SHEET_ID);
@@ -206,30 +208,43 @@ function saveEventData(eventData) {
     throw new Error("FAILED to access Spreadsheet: " + e.message);
   }
 
-  let folder;
-  try {
-    folder = DriveApp.getFolderById(FOLDER_ID);
-  } catch (e) {
-    throw new Error("FAILED to access Drive Folder: " + e.message);
+  // --- Auto-create header row if sheet is empty ---
+  if (sheet.getLastRow() === 0) {
+    const headers = [
+      "Timestamp",      // A
+      "Event ID",       // B
+      "Event Name",     // C
+      "Start Date",     // D
+      "End Date",       // E
+      "Location",       // F
+      "Description",    // G
+      "Member Name",    // H
+      "Designation",    // I
+      "Phone"           // J
+    ];
+    sheet.appendRow(headers);
+    sheet.getRange(1, 1, 1, headers.length)
+      .setFontWeight("bold")
+      .setBackground("#d9e8fb")
+      .setFontColor("#1a3a6b");
+    sheet.setFrozenRows(1);
   }
 
   const timestamp = new Date();
 
-  // --- Sequential Event ID ---
+  // --- Generate sequential Event ID ---
   let eventId = "EVT-001";
   try {
     const lastRow = sheet.getLastRow();
     if (lastRow > 1) {
-      // Use getValues() once to avoid repeated sheet calls; scan B column backwards
-      const bCol = sheet.getRange(1, 2, lastRow).getValues();
+      const bCol = sheet.getRange(2, 2, lastRow - 1, 1).getValues();
       let lastIdValue = "";
-      for (let i = bCol.length - 1; i >= 1; i--) {
+      for (let i = bCol.length - 1; i >= 0; i--) {
         if (bCol[i][0] && typeof bCol[i][0] === 'string' && bCol[i][0].startsWith("EVT-")) {
           lastIdValue = bCol[i][0];
           break;
         }
       }
-
       if (lastIdValue) {
         const lastNum = parseInt(lastIdValue.replace("EVT-", "").trim(), 10);
         if (!isNaN(lastNum)) {
@@ -238,91 +253,60 @@ function saveEventData(eventData) {
       }
     }
   } catch (e) {
-    eventId = "EVT-" + Math.floor(1000 + Math.random() * 9000); // Fallback
-  }
-
-  // --- Save Logo ---
-  let logoUrl = "";
-  if (eventData.logoBase64 && eventData.logoBase64.trim() !== "") {
-    try {
-      const blob = Utilities.newBlob(Utilities.base64Decode(eventData.logoBase64), "image/png", "logo_" + eventId + "_" + timestamp.getTime() + ".png");
-      const file = folder.createFile(blob);
-      logoUrl = file.getUrl();
-    } catch (e) {
-      logoUrl = "Error saving logo: " + e.message;
-    }
+    eventId = "EVT-" + Math.floor(1000 + Math.random() * 9000);
   }
 
   const members = eventData.teamMembers || [];
-  
-  // Columns A-AB: Event Info
-  const baseData = [
-    timestamp,                 // A: Timestamp
-    eventId,                   // B: Event ID
-    eventData.eventName,       // C: Event Name
-    eventData.startDate,       // D: Start Date
-    eventData.endDate,         // E: End Date
-    eventData.location,        // F: Event Location
-    eventData.description,     // G: Event Description
-    eventData.companyName,     // H: Company Name
-    eventData.tagline,         // I: Tagline
-    eventData.industry,        // J: Industry
-    eventData.foundedYear,     // K: Founded Year
-    eventData.officialPhone,   // L: Official Phone
-    eventData.alternatePhone,  // M: Alternate Phone
-    eventData.officialEmail,   // N: Official Email
-    eventData.whatsappNumber,  // O: WhatsApp Number
-    eventData.addressLine,     // P: Address Line
-    eventData.city,            // Q: City
-    eventData.state,           // R: State
-    eventData.pincode,         // S: Pincode
-    eventData.country,         // T: Country
-    eventData.websiteUrl,      // U: Website URL
-    eventData.googleMapsLink,  // V: Google Maps Link
-    eventData.linkedin,        // W: LinkedIn
-    eventData.instagram,       // X: Instagram
-    eventData.facebook,        // Y: Facebook
-    eventData.twitter,         // Z: Twitter/X
-    eventData.services,        // AA: Services Offered
-    eventData.aboutCompany,    // AB: About Company
-  ];
-
-  // Columns AF-AJ (Approx): Branding & Settings
-  const settingsData = [
-    logoUrl,                   // AC: Company Logo URL
-    eventData.themeColor,      // AD: Theme Color
-    eventData.saveContact,     // AE: Setting: Save Contact
-    eventData.downloadCard,    // AF: Setting: Download Card
-    eventData.whatsappBtn      // AG: Setting: WhatsApp Button
-  ];
 
   if (members.length === 0) {
-    sheet.appendRow([...baseData, "N/A", "N/A", "N/A", ...settingsData]);
+    // No members — save one row with event details only
+    sheet.appendRow([
+      timestamp,
+      eventId,
+      eventData.eventName   || "",
+      eventData.startDate   || "",
+      eventData.endDate     || "",
+      eventData.location    || "",
+      eventData.description || "",
+      "", "", ""  // Member cols empty
+    ]);
   } else {
     members.forEach((m, index) => {
       if (index === 0) {
-        // First Row: Full Details
+        // First row: Full event details + Member 1
         sheet.appendRow([
-          ...baseData, 
-          m.name, m.designation, m.phone, 
-          ...settingsData
+          timestamp,
+          eventId,
+          eventData.eventName   || "",
+          eventData.startDate   || "",
+          eventData.endDate     || "",
+          eventData.location    || "",
+          eventData.description || "",
+          m.name        || "",
+          m.designation || "",
+          m.phone       || ""
         ]);
       } else {
-        // Subsequent Rows: ONLY Member Info (Columns A to AB are empty)
-        const emptyEvent = Array(28).fill(""); // A through AB
+        // Subsequent rows: Event ID only (to link back) + member info
         sheet.appendRow([
-          ...emptyEvent,
-          m.name,       // AC: Member Name
-          m.designation,// AD: Designation
-          m.phone,      // AE: Member Phone
-          "", "", "", "", "" // Empty settings
+          "",       // A: Timestamp blank
+          eventId,  // B: Event ID (for reference)
+          "", "", "", "", "",          // C–G: blank
+          m.name        || "",         // H
+          m.designation || "",         // I
+          m.phone       || ""          // J
         ]);
       }
     });
   }
 
-  return { message: "✅ Event '" + eventData.eventName + "' saved. ID: " + eventId, eventId: eventId, success: true };
+  return {
+    success: true,
+    message: "✅ Event '" + eventData.eventName + "' saved. ID: " + eventId,
+    eventId: eventId
+  };
 }
+
 
 function getEventList() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
@@ -340,7 +324,8 @@ function getEventList() {
         id: data[i][1],
         name: data[i][2],
         startDate: data[i][3],
-        endDate: data[i][4]
+        endDate: data[i][4],
+        location: data[i][5] || ""
       });
     }
   }
@@ -392,10 +377,10 @@ function saveEventCardData(extractedData, photo1Base64, photo2Base64, eventInfo)
     eventInfo.startDate || "N/A",
     eventInfo.endDate || "N/A",
     img1, img2,
-    d.company_name || "",
+    d.company_name || d.company || "",
     d.industry || "",
-    d.person_name || "",
-    d.designation || "",
+    d.person_name || d.name || "",
+    d.designation || d.title || "",
     d.phone || "",
     d.email || "",
     d.website || "",
@@ -403,13 +388,13 @@ function saveEventCardData(extractedData, photo1Base64, photo2Base64, eventInfo)
     d.address || "",
     d.services || "",
     d.company_size || "",
-    d.founded_year || "",
+    d.founded_year || d.established_year || "",
     d.registration_status || "",
     d.trust_score || "",
-    d.people || "",
+    d.people || d.key_people || "",
     d.is_validated || "",
-    d.source_link || "",
-    d.about_company || "",
+    d.source_link || d.validation_source || "",
+    d.about_company || d.about_the_company || "",
     d.location || ""
   ]);
 
@@ -439,6 +424,56 @@ function getEventById(eventId) {
     }
     
     return { success: false, message: "Event not found" };
+}
+
+/**
+ * Fetch specific data for an event (Cards + Visitors)
+ */
+function getEventSpecificData(eventId, eventName) {
+    if (!eventId && !eventName) return { success: false, message: "No Event identifier provided" };
+    const ss = SpreadsheetApp.openById(SHEET_ID);
+    
+    const cardSheet = ss.getSheetByName("Event Ai Card");
+    const visitorSheet = ss.getSheetByName("Visitor Details");
+    
+    const idStr = eventId ? String(eventId).trim().toLowerCase() : null;
+    const nameStr = eventName ? String(eventName).trim().toLowerCase() : null;
+
+    let cards = [];
+    if (cardSheet) {
+        const data = cardSheet.getDataRange().getValues();
+        const headers = data[0];
+        // Event ID: Col B (1), Event Name: Col C (2)
+        for (let i = 1; i < data.length; i++) {
+            const rowId = String(data[i][1]).trim().toLowerCase();
+            const rowName = String(data[i][2]).trim().toLowerCase();
+            
+            if ((idStr && rowId === idStr) || (nameStr && rowName === nameStr)) {
+                const obj = {};
+                headers.forEach((h, idx) => obj[h] = data[i][idx]);
+                cards.push(obj);
+            }
+        }
+    }
+    
+    let visitors = [];
+    if (visitorSheet) {
+        const data = visitorSheet.getDataRange().getValues();
+        const headers = data[0];
+        // Event ID: Col B (1), Event Name: Col C (2)
+        for (let i = 1; i < data.length; i++) {
+            const rowId = String(data[i][1]).trim().toLowerCase();
+            const rowName = String(data[i][2]).trim().toLowerCase();
+
+            if ((idStr && rowId === idStr) || (nameStr && rowName === nameStr)) {
+                const obj = {};
+                headers.forEach((h, idx) => obj[h] = data[i][idx]);
+                visitors.push(obj);
+            }
+        }
+    }
+    
+    return { success: true, cards: cards, visitors: visitors };
 }
 
 /**

@@ -117,6 +117,22 @@ async def submit_lead(request: dict):
         logger.error(f"Submit Lead Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/get-event-data")
+async def get_event_specific_data(request: dict):
+    try:
+        payload = {
+            "action": "get_event_data",
+            "eventId": request.get("eventId"),
+            "eventName": request.get("eventName")
+        }
+        resp = submit_to_sheets(payload)
+        if resp and resp.status_code == 200:
+            return resp.json()
+        return {"success": False, "message": "Failed to fetch event data"}
+    except Exception as e:
+        logger.error(f"Get Event Data Error: {e}")
+        return {"success": False, "message": str(e)}
+
 @app.get("/proxy-image")
 async def proxy_image(url: str):
     if not url:

@@ -90,70 +90,164 @@
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
-<body class="min-h-screen flex flex-col p-6 sm:p-12 relative">
+<body class="min-h-screen flex flex-col relative">
 
     <!-- Background Animation Layer -->
     <div class="bg-animation">
-        <div class="floating-card card-1"></div>
-        <div class="floating-card card-2"></div>
-        <div class="floating-card card-3"></div>
         <div class="glow-orb" style="top: -100px; right: -100px;"></div>
         <div class="glow-orb" style="bottom: -200px; left: -100px;"></div>
     </div>
 
-    <!-- Bottom Toast -->
+    <!-- Toast Notification -->
     <div id="toast" class="notification-bar bg-white border border-gray-100 shadow-2xl rounded-2xl px-6 py-4 flex items-center gap-4 min-w-[320px]">
         <div id="toast-icon" class="w-2 h-2 rounded-full"></div>
         <span id="toast-text" class="text-sm font-semibold text-gray-700"></span>
     </div>
 
-    <div class="dashboard-container">
-        <!-- Dashboard Header -->
-        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12">
-            <div>
-                <div class="flex items-center gap-3">
-                    <h1 class="text-3xl font-bold tracking-tight text-gray-900">Lead Capture</h1>
-                    <!-- Custom Event Selector in Header -->
-                    <div id="eventSelectorContainer" class="hidden animate-slide-right">
-                        <div class="relative inline-block ml-4" id="customDropdown">
-                            <button type="button" onclick="toggleDropdown()" class="flex items-center gap-3 bg-blue-50 border border-blue-100 pl-4 pr-3 py-2 rounded-2xl hover:bg-white hover:shadow-md transition-all active:scale-95 group">
-                                <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                                <span id="selectedEventText" class="text-[11px] font-bold text-slate-700 max-w-[150px] truncate">-- Choose Event --</span>
-                                <svg class="w-4 h-4 text-blue-400 group-hover:text-blue-600 transition-transform" id="dropdownArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </button>
-                            <!-- Custom Options List -->
-                            <div id="dropdownOptions" class="hidden absolute top-full left-0 mt-2 w-64 bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-2xl z-[100] max-h-60 overflow-y-auto p-2 animate-slide-up">
-                                <div class="px-3 py-2 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50 mb-1">Available Event Pipelines</div>
-                                <div id="optionsList">
-                                    <div class="p-3 text-center text-xs text-gray-400">Loading events...</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <p class="text-gray-500 text-sm font-medium mt-1">Intelligent OCR Processing Engine</p>
-            </div>
-            <div class="flex items-center gap-4">
-                <button type="button" id="openEventBtn" class="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-lg shadow-blue-100 hover:scale-105 transition-all group active:scale-95">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    <span class="text-[11px] font-bold uppercase tracking-widest">+ Create Event</span>
+    <!-- ===== GLOBAL HEADER ===== -->
+    <header style="background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid #e8edf2; position: sticky; top: 0; z-index: 50;">
+        <div style="max-width: 1400px; width: 95%; margin: 0 auto; padding: 12px 0; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+            <!-- Left: Title & Badge -->
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button id="backToEventsBtn" style="display: none; align-items: center; gap: 8px; padding: 10px 18px; background: white; border: 1px solid #e2e8f0; border-radius: 100px; cursor: pointer; font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #475569; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.03);" onmouseover="this.style.borderColor='#2563eb';this.style.color='#2563eb'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#475569'">
+                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Back
                 </button>
-                <a href="leads.html" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-100 rounded-full shadow-sm hover:bg-gray-50 transition-colors group">
-                    <svg class="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    <span class="text-[11px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-blue-600 transition-colors">Database</span>
-                </a>
-                <div class="flex items-center gap-3 px-4 py-2 bg-white border border-gray-100 rounded-full shadow-sm">
-                    <span class="status-dot pulse-blue"></span>
-                    <span class="text-[11px] font-bold uppercase tracking-widest text-gray-400">System Ready</span>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h1 id="mainTitle" style="font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px; margin: 0;">Event Hub</h1>
+                    </div>
+                    <p id="mainSubtitle" style="font-size: 13px; color: #94a3b8; font-weight: 500; margin: 2px 0 0;">Intelligent OCR Processing Engine</p>
                 </div>
             </div>
-        </header>
+            <!-- Right: Action Buttons -->
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button type="button" id="openEventBtn" style="display: flex; align-items: center; gap: 8px; padding: 10px 22px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 100px; cursor: pointer; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; box-shadow: 0 4px 14px rgba(37,99,235,0.3); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    Create Event
+                </button>
+                </button>
+                <!-- NEW: Database Button (Only for Events) -->
+                <button id="eventDatabaseBtn" title="Event Insights" style="display: none; width:38px;height:38px;border-radius:50%;background:white;border:1px solid #e2e8f0;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#2563eb';this.style.background='#f8fafc'" onmouseout="this.style.borderColor='#e2e8f0';this.style.background='white'">
+                    <svg style="width:18px;height:18px;color:#475569;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.58 4 8 4s8-1.79 8-4M4 7c0-2.21 3.58-4 8-4s8 1.79 8 4m0 5c0 2.21-3.58 4-8 4s-8-1.79-8-4"></path></svg>
+                </button>
+                <button id="openProfileBtn" onclick="openProfileDrawer()" title="Company Profile" style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#e0e7ff,#dbeafe);border:2px solid #c7d2fe;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.borderColor='#6366f1';this.style.transform='scale(1.07)'" onmouseout="this.style.borderColor='#c7d2fe';this.style.transform='scale(1)'">
+                    <svg style="width:17px;height:17px;color:#4f46e5;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </header>
 
-        <!-- Dynamic Workspace -->
-        <main class="premium-card p-6 sm:p-10 relative" id="mainContainer">
-            <div class="scan-progress"></div>
+    <!-- ===== MAIN CONTENT ===== -->
+    <main style="flex: 1; max-width: 1400px; width: 95%; margin: 0 auto; padding: 36px 0;">
+
+        <!-- Event Selection Grid -->
+        <div id="eventGridContainer" class="animate-fade-in">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start" id="eventGrid">
+                <!-- Event cards will be injected here -->
+                <div class="col-span-full py-20 text-center">
+                    <div class="sync-loader mx-auto mb-4"></div>
+                    <p class="text-gray-400 font-medium">Synchronizing Event Hub...</p>
+                </div>
+            </div>
+        </div>
+
+       </div> <!-- End Main Workspace Container -->
+
+    <!-- NEW: Event Database Container (Table View) -->
+    <div id="dbViewContainer" class="dashboard-container hidden" style="max-width: 1200px; margin-top: 20px;">
+        <div style="background: white; border-radius: 20px; border: 1px solid #eef2f6; box-shadow: 0 10px 30px rgba(0,0,0,0.03); min-height: 500px; padding: 30px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px;">
+                <div style="display: flex; background: #f8fafc; padding: 4px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <button onclick="switchDbTab('cards')" id="db-tab-cards" style="padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s;">
+                        Scanned Cards
+                    </button>
+                    <button onclick="switchDbTab('visitors')" id="db-tab-visitors" style="padding: 10px 20px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; margin-left: 4px;">
+                        QR Visitors
+                    </button>
+                </div>
+                <button onclick="closeDbView()" style="background: #fee2e2; color: #ef4444; border: none; padding: 10px 20px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    Close Insights
+                </button>
+            </div>
+
+            <!-- Cards Table -->
+            <div id="db-cards-content" class="overflow-x-auto" style="scrollbar-width: none; -ms-overflow-style: none;">
+                <style>
+                    #db-cards-content::-webkit-scrollbar, #db-visitors-content::-webkit-scrollbar { display: none; }
+                </style>
+                <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                    <thead>
+                        <tr style="text-align: left; background: #f8fafc; white-space: nowrap;">
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">S No.</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Photos</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Company Name</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Industry</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Person Name</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Designation</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Phone</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Email</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Website</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Social Media</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Address</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Services</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Company Size</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Founded Year</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Reg Status</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Trust Score</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Key People</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Validated</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Source Link</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">About Company</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Location</th>
+                        </tr>
+                    </thead>
+                    <tbody id="db-cards-body">
+                        <!-- Rows injected here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Visitors Table -->
+            <div id="db-visitors-content" class="overflow-x-auto hidden">
+                <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                    <thead>
+                        <tr style="text-align: left; background: #f8fafc;">
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Visitor</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Email/Phone</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Organization & Role</th>
+                            <th style="padding: 15px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; border-bottom: 2px solid #f1f5f9;">Message</th>
+                        </tr>
+                    </thead>
+                    <tbody id="db-visitors-body">
+                        <!-- Rows injected here -->
+                    </tbody>
+                </table>
+            </div>
             
-            <form id="extractionForm" class="space-y-12">
+            <div id="db-loading" class="hidden" style="text-align: center; padding: 50px; color: #64748b;">
+                <div class="animate-spin" style="width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid #2563eb; border-radius: 50%; margin: 0 auto 15px;"></div>
+                Fetching Event Insights...
+            </div>
+        </div>
+    </div>
+        <!-- Capture Workspace -->
+        <div class="premium-card p-6 sm:p-10 relative hidden" id="mainContainer" style="max-width: 960px; margin: 0 auto;">
+            <div class="scan-progress"></div>
+
+            <!-- Tab Navigation -->
+            <div class="flex items-center gap-2 mb-8 bg-gray-50/50 p-1.5 rounded-2xl border border-gray-100 w-fit">
+                <button onclick="switchTab('scan')" id="tab-scan" class="px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all bg-white text-blue-600 shadow-sm border border-blue-50">
+                    Scan Card
+                </button>
+                <button onclick="switchTab('qr')" id="tab-qr" class="px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all text-gray-400 hover:text-gray-600">
+                    Event QR
+                </button>
+            </div>
+            
+            <div id="scanTabContent">
+                <form id="extractionForm" class="space-y-12">
                 <!-- Capture Zones -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                     <!-- Column 1: Front -->
@@ -230,12 +324,163 @@
                     </button>
                 </div>
             </form>
-        </main>
+            </div>
 
-        <footer class="mt-20 text-center">
-            <span class="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-300">Powered by Botivate</span>
-        </footer>
+            <!-- Event QR Tab Content -->
+            <div id="qrTabContent" class="hidden">
+                <div class="flex flex-col items-center justify-center py-10 text-center">
+                    <div class="bg-white p-8 rounded-[40px] shadow-2xl shadow-blue-100 border border-blue-50 mb-8 transform transition-all hover:scale-[1.02]">
+                        <img id="displayQR" src="" alt="Event QR Code" class="w-64 h-64 object-contain">
+                    </div>
+                    <h3 class="text-2xl font-black text-gray-900 mb-2">Share Event QR</h3>
+                    <p class="text-gray-500 max-w-sm mb-8 font-medium">Scan this QR to save event contact details directly to your phone's address book.</p>
+                    
+                    <div class="flex gap-4">
+                        <button onclick="downloadActiveQR()" class="flex items-center gap-3 px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Download QR
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ===== PROFILE DRAWER ===== -->
+    <div id="profileBackdrop" onclick="closeProfileDrawer()" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.4);z-index:200;backdrop-filter:blur(4px);"></div>
+    <div id="profileDrawer" style="position:fixed;top:0;right:-500px;width:480px;max-width:95vw;height:100vh;background:white;z-index:201;box-shadow:-20px 0 60px rgba(0,0,0,0.12);display:flex;flex-direction:column;transition:right 0.35s cubic-bezier(0.4,0,0.2,1);overflow:hidden;">
+        <!-- Drawer Header -->
+        <div style="padding:24px 28px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+            <div>
+                <h2 style="font-size:18px;font-weight:800;color:#0f172a;margin:0;">Company Profile</h2>
+                <p style="font-size:12px;color:#94a3b8;margin:4px 0 0;font-weight:500;">Saved locally — used in every event automatically</p>
+            </div>
+            <button onclick="closeProfileDrawer()" style="width:34px;height:34px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#64748b;">
+                <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:12px;">
+            <form id="profileForm">
+
+                <!-- Company Details -->
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:12px;">
+                    <div style="padding:14px 18px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:8px;background:white;">
+                        <svg style="width:15px;height:15px;color:#6366f1;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#6366f1;">Company Details</span>
+                    </div>
+                    <div style="padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                        <div style="grid-column:span 2;"><label class="input-label">Company Name</label><input type="text" id="prof_comp_name" class="input-field" placeholder="Your brand name"></div>
+                        <div><label class="input-label">Tagline</label><input type="text" id="prof_comp_tagline" class="input-field" placeholder="Short slogan"></div>
+                        <div><label class="input-label">Industry</label><select id="prof_comp_industry" class="input-field"><option value="">Select Industry</option><option>Technology</option><option>Real Estate</option><option>Healthcare</option><option>Finance</option><option>Education</option><option>Other</option></select></div>
+                        <div><label class="input-label">Founded Year</label><input type="number" id="prof_comp_founded" class="input-field" placeholder="YYYY"></div>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:12px;">
+                    <div style="padding:14px 18px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:8px;background:white;">
+                        <svg style="width:15px;height:15px;color:#10b981;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                        <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#10b981;">Contact Info</span>
+                    </div>
+                    <div style="padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                        <div><label class="input-label">Official Phone</label><input type="tel" id="prof_off_phone" class="input-field" placeholder="+91..."></div>
+                        <div><label class="input-label">Alternate Phone</label><input type="tel" id="prof_alt_phone" class="input-field" placeholder="Mobile"></div>
+                        <div><label class="input-label">Official Email</label><input type="email" id="prof_off_email" class="input-field" placeholder="info@company.com"></div>
+                        <div><label class="input-label">WhatsApp Number</label><input type="tel" id="prof_whatsapp" class="input-field" placeholder="WhatsApp"></div>
+                    </div>
+                </div>
+
+                <!-- Address -->
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:12px;">
+                    <div style="padding:14px 18px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:8px;background:white;">
+                        <svg style="width:15px;height:15px;color:#0ea5e9;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#0ea5e9;">Address</span>
+                    </div>
+                    <div style="padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                        <div style="grid-column:span 2;"><label class="input-label">Address Line</label><input type="text" id="prof_addr_line" class="input-field" placeholder="Street, Building, Suite"></div>
+                        <div><label class="input-label">City</label><input type="text" id="prof_city" class="input-field"></div>
+                        <div><label class="input-label">State</label><input type="text" id="prof_state" class="input-field"></div>
+                        <div><label class="input-label">Pincode</label><input type="text" id="prof_pincode" class="input-field"></div>
+                        <div><label class="input-label">Country</label><input type="text" id="prof_country" class="input-field" value="India"></div>
+                    </div>
+                </div>
+
+                <!-- Online Presence -->
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:12px;">
+                    <div style="padding:14px 18px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:8px;background:white;">
+                        <svg style="width:15px;height:15px;color:#f59e0b;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                        <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#f59e0b;">Online Presence</span>
+                    </div>
+                    <div style="padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                        <div><label class="input-label">Website URL</label><input type="url" id="prof_web_url" class="input-field" placeholder="https://..."></div>
+                        <div><label class="input-label">Google Maps Link</label><input type="url" id="prof_maps_link" class="input-field" placeholder="Maps share link"></div>
+                        <div><label class="input-label">LinkedIn</label><input type="url" id="prof_linkedin" class="input-field" placeholder="linkedin.com/..."></div>
+                        <div><label class="input-label">Instagram</label><input type="url" id="prof_instagram" class="input-field" placeholder="instagram.com/..."></div>
+                        <div><label class="input-label">Facebook</label><input type="url" id="prof_facebook" class="input-field" placeholder="facebook.com/..."></div>
+                        <div><label class="input-label">Twitter / X</label><input type="url" id="prof_twitter" class="input-field" placeholder="x.com/..."></div>
+                    </div>
+                </div>
+
+                <!-- Company Info -->
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:12px;">
+                    <div style="padding:14px 18px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:8px;background:white;">
+                        <svg style="width:15px;height:15px;color:#8b5cf6;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#8b5cf6;">Company Info</span>
+                    </div>
+                    <div style="padding:16px 18px;display:flex;flex-direction:column;gap:12px;">
+                        <div><label class="input-label">Services Offered (space-separated)</label><input type="text" id="prof_services" class="input-field" placeholder="Web-Dev Designing AI Marketing"></div>
+                        <div><label class="input-label">About Company</label><textarea id="prof_about" class="input-field" style="min-height:80px;" placeholder="Briefly introduce your business..."></textarea></div>
+                    </div>
+                </div>
+
+                <!-- Key Person Details -->
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:12px;">
+                    <div style="padding:14px 18px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:8px;background:white;">
+                        <svg style="width:15px;height:15px;color:#ec4899;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#ec4899;">Key Person Details</span>
+                    </div>
+                    <div style="padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                        <div style="grid-column:span 2;"><label class="input-label">Full Name</label><input type="text" id="prof_kp_name" class="input-field" placeholder="Key person's full name"></div>
+                        <div><label class="input-label">Designation</label><input type="text" id="prof_kp_designation" class="input-field" placeholder="CEO, Director, etc."></div>
+                        <div><label class="input-label">Direct Phone</label><input type="tel" id="prof_kp_phone" class="input-field" placeholder="Direct number"></div>
+                        <div style="grid-column:span 2;"><label class="input-label">Personal Email</label><input type="email" id="prof_kp_email" class="input-field" placeholder="personal@email.com"></div>
+                    </div>
+                </div>
+
+                <!-- Company Logo -->
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;margin-bottom:4px;">
+                    <div style="padding:14px 18px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:8px;background:white;">
+                        <svg style="width:15px;height:15px;color:#64748b;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#64748b;">Company Logo</span>
+                    </div>
+                    <div style="padding:16px 18px;display:flex;align-items:center;gap:16px;">
+                        <div style="width:56px;height:56px;background:white;border:2px dashed #e2e8f0;border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                            <img id="prof_logo_preview" style="display:none;width:100%;height:100%;object-fit:contain;">
+                            <svg id="prof_logo_placeholder" style="width:20px;height:20px;color:#cbd5e1;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                        <div>
+                            <input type="file" id="prof_logo_input" accept="image/*" class="hidden">
+                            <button type="button" onclick="document.getElementById('prof_logo_input').click()" style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#2563eb;background:#eff6ff;border:1px solid #bfdbfe;padding:8px 16px;border-radius:100px;cursor:pointer;">Upload Logo</button>
+                            <p style="font-size:11px;color:#94a3b8;margin:6px 0 0;">PNG, JPG or SVG recommended</p>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Drawer Footer -->
+        <div style="padding:20px 28px;border-top:1px solid #f1f5f9;display:flex;gap:12px;flex-shrink:0;">
+            <button onclick="saveProfile()" style="flex:1;padding:14px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;border-radius:14px;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:0.05em;box-shadow:0 4px 14px rgba(37,99,235,0.25);transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">Save Profile</button>
+            <button onclick="closeProfileDrawer()" style="padding:14px 20px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;">Cancel</button>
+        </div>
     </div>
+
+    <!-- ===== GLOBAL FOOTER ===== -->
+    <footer style="border-top: 1px solid #f1f5f9; padding: 28px 0; text-align: center;">
+        <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4em; color: #cbd5e1;">Powered by Botivate</span>
+    </footer>
 
     <!-- Event Creation Modal -->
     <div id="eventModalBackdrop" class="modal-backdrop">
@@ -305,149 +550,7 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 2: COMPANY DETAILS -->
-                    <div class="section-card">
-                        <div class="section-title">
-                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                            <span>Company Details</span>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="input-group">
-                                <label class="input-label">Company Name</label>
-                                <input type="text" id="comp_name" class="input-field" placeholder="Your brand name" required>
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">Tagline (Optional)</label>
-                                <input type="text" id="comp_tagline" class="input-field" placeholder="Short slogan">
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">Industry</label>
-                                <select id="comp_industry" class="input-field">
-                                    <option value="">Select Industry</option>
-                                    <option>Technology</option>
-                                    <option>Real Estate</option>
-                                    <option>Healthcare</option>
-                                    <option>Finance</option>
-                                    <option>Education</option>
-                                    <option>Other</option>
-                                </select>
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">Founded Year</label>
-                                <input type="number" id="comp_founded" class="input-field" placeholder="YYYY">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 3: CONTACT INFO -->
-                    <div class="section-card">
-                        <div class="section-title">
-                            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                            <span>Contact Info</span>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="input-group">
-                                <label class="input-label">Official Phone</label>
-                                <input type="tel" id="off_phone" class="input-field" placeholder="+1..." required>
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">Alternate Phone</label>
-                                <input type="tel" id="alt_phone" class="input-field" placeholder="Mobile number">
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">Official Email</label>
-                                <input type="email" id="off_email" class="input-field" placeholder="info@company.com" required>
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">WhatsApp Number</label>
-                                <input type="tel" id="whatsapp_num" class="input-field" placeholder="For instant connect">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 4: ADDRESS -->
-                    <div class="section-card">
-                        <div class="section-title">
-                            <svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span>Address</span>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="input-group md:col-span-2">
-                                <label class="input-label">Address Line</label>
-                                <input type="text" id="addr_line" class="input-field" placeholder="Street, Building, Suite">
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">City</label>
-                                <input type="text" id="city" class="input-field" required>
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">State</label>
-                                <input type="text" id="state" class="input-field" required>
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">Pincode</label>
-                                <input type="text" id="pincode" class="input-field">
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">Country</label>
-                                <input type="text" id="country" class="input-field" value="India">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 5: ONLINE PRESENCE -->
-                    <div class="section-card">
-                        <div class="section-title">
-                            <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
-                            <span>Online Presence</span>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="input-group">
-                                <label class="input-label">Website URL</label>
-                                <input type="url" id="web_url" class="input-field" placeholder="https://...">
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">Google Maps Link</label>
-                                <input type="url" id="maps_link" class="input-field" placeholder="Share link from maps">
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">LinkedIn</label>
-                                <input type="url" id="linkedin_url" class="input-field">
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">Instagram</label>
-                                <input type="url" id="insta_url" class="input-field">
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">Facebook</label>
-                                <input type="url" id="fb_url" class="input-field">
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">Twitter / X</label>
-                                <input type="url" id="twitter_url" class="input-field">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 6: COMPANY INFO -->
-                    <div class="section-card">
-                        <div class="section-title">
-                            <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span>Company Info</span>
-                        </div>
-                        <div class="space-y-6">
-                            <div class="input-group">
-                                <label class="input-label">Services Offered (Space separated)</label>
-                                <input type="text" id="services_offered" class="input-field" placeholder="Web-Dev Designing AI Marketing">
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">About Company</label>
-                                <textarea id="about_comp" class="input-field min-h-[100px]" placeholder="Briefly introduce your business..."></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 7: TEAM MEMBERS -->
+                    <!-- SECTION 2: TEAM MEMBERS -->
                     <div class="section-card">
                         <div class="section-title justify-between">
                             <div class="flex items-center gap-2">
@@ -464,63 +567,10 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 8: BRANDING -->
-                    <div class="section-card">
-                        <div class="section-title">
-                            <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 014 4h12l-1 5H7z"></path></svg>
-                            <span>Branding</span>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div class="input-group">
-                                <label class="input-label">Company Logo</label>
-                                <div class="flex items-center gap-4">
-                                    <div class="w-16 h-16 bg-gray-50 border border-dashed border-gray-200 rounded-2xl flex items-center justify-center text-gray-400 overflow-hidden">
-                                        <img id="logo_preview" class="hidden w-full h-full object-contain">
-                                        <svg id="logo_placeholder" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                    </div>
-                                    <input type="file" id="comp_logo_input" accept="image/*" class="hidden">
-                                    <button type="button" onclick="document.getElementById('comp_logo_input').click()" class="text-[10px] font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-4 py-2 rounded-full">Upload Logo</button>
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <label class="input-label">Theme Color</label>
-                                <div class="flex items-center gap-3">
-                                    <input type="color" id="theme_color" class="w-10 h-10 border-none bg-transparent rounded-full cursor-pointer" value="#2563eb">
-                                    <span class="text-xs font-mono text-gray-500">Pick color</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SECTION 9: SETTINGS -->
-                    <div class="section-card">
-                        <div class="section-title">
-                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <span>Feature Settings</span>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-                                <span class="text-xs font-bold text-gray-700">Save Contact</span>
-                                <label class="switch">
-                                    <input type="checkbox" id="setting_save_contact" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-                                <span class="text-xs font-bold text-gray-700">Download Card</span>
-                                <label class="switch">
-                                    <input type="checkbox" id="setting_download_card" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-                                <span class="text-xs font-bold text-gray-700">WhatsApp Msg</span>
-                                <label class="switch">
-                                    <input type="checkbox" id="setting_whatsapp_btn" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                        </div>
+                    <!-- Profile Info Notice -->
+                    <div style="padding:16px 20px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:16px;display:flex;align-items:center;gap:12px;">
+                        <svg style="width:18px;height:18px;color:#0284c7;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p style="font-size:12px;color:#0369a1;font-weight:500;margin:0;">Company details (contact, address, branding, online presence) are pulled from your <strong>Company Profile</strong>. Update them via the profile icon in the header.</p>
                     </div>
 
                     <div class="pt-8">
@@ -534,14 +584,10 @@
         </div>
     </div>
 
-    <!-- Floating Mode Toggle -->
-    <div class="floating-mode-toggle">
-        <button onclick="setMode('normal')" id="modeNormal" class="mode-btn active">Normal Mode</button>
-        <button onclick="setMode('event')" id="modeEvent" class="mode-btn">Event Mode</button>
-    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+
             const api = '/ocr';
             const frm = document.getElementById('extractionForm');
             const ctr = document.getElementById('mainContainer');
@@ -559,19 +605,335 @@
                 h1: document.getElementById('hint1'), h2: document.getElementById('hint2'),
                 overlay: document.getElementById('cameraOverlay'),
                 video: document.getElementById('videoFeed'),
-                label: document.getElementById('sideLabel'),
+                label: document.getElementById('cameraLabel'), // Updated to match HTML if needed, or fix below
                 choice: document.getElementById('choiceModal'),
                 btns: document.getElementById('cameraBtns')
             };
+
+            const gridContainer = document.getElementById('eventGridContainer');
+            const eventGrid = document.getElementById('eventGrid');
+            const backBtn = document.getElementById('backToEventsBtn');
+            const mainTitle = document.getElementById('mainTitle');
+            const activeEventBadge = document.getElementById('activeEventBadge');
+            const activeEventName = document.getElementById('activeEventName');
 
             let stream = null;
             let currentSide = 'front';
             let photoData = { front: null, back: null };
 
+            // Initialize Grid
+            fetchEvents();
+
+            backBtn.onclick = () => showEventList();
+
+            window.onpopstate = (e) => {
+                if (e.state && e.state.view === 'scan' && e.state.event) {
+                    selectEvent(e.state.event, true);
+                } else {
+                    showEventList(true);
+                }
+            };
+
+            function showEventList(isPopState = false) {
+                // Instant UI response
+                gridContainer.style.display = 'block';
+                ctr.classList.add('hidden');
+                document.getElementById('backToEventsBtn').style.setProperty('display', 'none', 'important');
+                
+                mainTitle.innerText = 'Event Hub';
+                document.getElementById('mainSubtitle').innerText = 'Intelligent OCR Processing Engine';
+                
+                // Show header buttons again
+                document.getElementById('openEventBtn').style.display = 'flex';
+                document.getElementById('eventDatabaseBtn').style.display = 'none';
+                window.selectedEventInfo = null;
+                switchTab('scan'); // Default tab
+                closeDbView(); // Ensure DB view is closed
+                
+                // Sync History in background
+                if (!isPopState) {
+                    if (window.history.state && window.history.state.view === 'scan') {
+                        window.history.back();
+                    } else {
+                        window.history.replaceState({view: 'hub'}, '');
+                    }
+                }
+                
+                // Background refresh
+                setTimeout(fetchEvents, 50);
+            }
+
+            window.switchDbTab = (tab) => {
+                const cT = document.getElementById('db-cards-content');
+                const vT = document.getElementById('db-visitors-content');
+                const cB = document.getElementById('db-tab-cards');
+                const vB = document.getElementById('db-tab-visitors');
+                const active = ['bg-blue-600', 'text-white', 'shadow-md'];
+                const inactive = ['text-gray-500', 'hover:bg-gray-100'];
+
+                if (tab === 'cards') {
+                    cT.classList.remove('hidden'); vT.classList.add('hidden');
+                    cB.classList.add(...active); cB.classList.remove(...inactive);
+                    vB.classList.remove(...active); vB.classList.add(...inactive);
+                } else {
+                    cT.classList.add('hidden'); vT.classList.remove('hidden');
+                    vB.classList.add(...active); vB.classList.remove(...inactive);
+                    cB.classList.remove(...active); cB.classList.add(...inactive);
+                }
+            };
+
+            window.openDbView = async (eventId, eventName) => {
+                if (!eventId && !eventName) return;
+                const modal = document.getElementById('dbViewContainer');
+                const main = document.getElementById('mainContainer');
+                const loading = document.getElementById('db-loading');
+                const cBody = document.getElementById('db-cards-body');
+                const vBody = document.getElementById('db-visitors-body');
+
+                modal.classList.remove('hidden');
+                main.classList.add('hidden');
+                loading.classList.remove('hidden');
+                cBody.innerHTML = ''; vBody.innerHTML = '';
+                switchDbTab('cards');
+
+                try {
+                    const r = await fetch('/get-event-data', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ eventId: eventId, eventName: eventName })
+                    });
+                    const res = await r.json();
+                    loading.classList.add('hidden');
+
+                    if (res.success) {
+                        // Populate Cards
+                        res.cards.forEach((card, idx) => {
+                            const img1 = card['Card Photo 1'] ? `<a href="${card['Card Photo 1']}" target="_blank" title="Photo 1" style="color:#2563eb;margin-right:8px;"><svg style="width:16px;height:16px;display:inline;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2"></path></svg></a>` : '';
+                            const img2 = card['Card Photo 2'] ? `<a href="${card['Card Photo 2']}" target="_blank" title="Photo 2" style="color:#2563eb;"><svg style="width:16px;height:16px;display:inline;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2"></path></svg></a>` : '';
+                            const srcLink = card['Source Link'] ? `<a href="${card['Source Link']}" target="_blank" style="color:#2563eb;text-decoration:underline;overflow:hidden;text-overflow:ellipsis;max-width:150px;display:inline-block;">View Source</a>` : 'N/A';
+                            
+                            // Make links clickable
+                            const createLink = (val) => {
+                                if (!val || val === 'N/A') return 'N/A';
+                                if (String(val).startsWith('http')) return `<a href="${val}" target="_blank" style="color:#2563eb;text-decoration:underline;">${val}</a>`;
+                                if (String(val).includes('@') && String(val).includes('.')) return `<a href="mailto:${val}" style="color:#2563eb;text-decoration:underline;">${val}</a>`;
+                                return val;
+                            };
+
+                            const website = createLink(card['Website']);
+                            const email = createLink(card['Email']);
+
+                            const row = `
+                                <tr style="white-space:nowrap; border-bottom:1px solid #f1f5f9;">
+                                    <td style="padding:15px; font-size:12px; color:#64748b; font-weight:700;">${idx + 1}</td>
+                                    <td style="padding:15px; font-size:12px;">${img1}${img2}</td>
+                                    <td style="padding:15px; font-size:12px; font-weight:600; color:#1e293b;">${card['Company Name'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px; color:#64748b;">${card['Industry'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px; font-weight:600; color:#1e293b;">${card['Person Name'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px; color:#64748b;">${card['Designation'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px; color:#1e293b;">${card['Phone'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px;">${email}</td>
+                                    <td style="padding:15px; font-size:12px;">${website}</td>
+                                    <td style="padding:15px; font-size:12px; color:#64748b;">${card['Social Media'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px; color:#64748b; max-width:200px; overflow:hidden; text-overflow:ellipsis;">${card['Address'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px; color:#64748b;">${card['Services'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px; color:#64748b;">${card['Company Size'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px; color:#64748b;">${card['Founded Year'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px; color:#64748b;">${card['Registration Status'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px; color:#16a34a; font-weight:700;">${card['Trust Score'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px; color:#64748b;">${card['People (Founders)'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px; color:#64748b;">${card['Is Validated'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px;">${srcLink}</td>
+                                    <td style="padding:15px; font-size:12px; color:#64748b; max-width:200px; overflow:hidden; text-overflow:ellipsis;">${card['About Company'] || 'N/A'}</td>
+                                    <td style="padding:15px; font-size:12px; color:#64748b;">${card['Location'] || 'N/A'}</td>
+                                </tr>
+                            `;
+                            cBody.insertAdjacentHTML('beforeend', row);
+                        });
+
+                        // Populate Visitors
+                        res.visitors.forEach(v => {
+                            const row = `
+                                <tr>
+                                    <td style="padding:15px; border-bottom:1px solid #f1f5f9; font-size:13px; font-weight:600; color:#1e293b;">${v['Visitor Name'] || 'N/A'}</td>
+                                    <td style="padding:15px; border-bottom:1px solid #f1f5f9; font-size:13px; color:#64748b;">${v['Visitor Email']}<br><span style="font-size:11px; opacity:0.7;">${v['Visitor Mobile']}</span></td>
+                                    <td style="padding:15px; border-bottom:1px solid #f1f5f9; font-size:13px; color:#64748b;">${v['Visitor Organization']}<br><span style="font-size:11px; opacity:0.7;">${v['Visitor Designation']}</span></td>
+                                    <td style="padding:15px; border-bottom:1px solid #f1f5f9; font-size:13px; color:#64748b;">${v['Message'] || '--'}</td>
+                                </tr>
+                            `;
+                            vBody.insertAdjacentHTML('beforeend', row);
+                        });
+                    }
+                } catch (e) {
+                    loading.innerHTML = '<p style="color:#ef4444">Failed to load data.</p>';
+                }
+            };
+
+            window.closeDbView = () => {
+                document.getElementById('dbViewContainer').classList.add('hidden');
+                if (window.selectedEventInfo) {
+                    document.getElementById('mainContainer').classList.remove('hidden');
+                }
+            };
+
+            window.switchTab = (tab) => {
+                const s = document.getElementById('scanTabContent');
+                const q = document.getElementById('qrTabContent');
+                const ts = document.getElementById('tab-scan');
+                const tq = document.getElementById('tab-qr');
+                const activeClasses = ['bg-white', 'text-blue-600', 'shadow-sm', 'border', 'border-blue-50'];
+                const inactiveClasses = ['text-gray-400', 'hover:text-gray-600'];
+
+                if (tab === 'scan') {
+                    s.classList.remove('hidden'); q.classList.add('hidden');
+                    ts.classList.add(...activeClasses); ts.classList.remove(...inactiveClasses);
+                    tq.classList.remove(...activeClasses); tq.classList.add(...inactiveClasses);
+                } else {
+                    s.classList.add('hidden'); q.classList.remove('hidden');
+                    tq.classList.add(...activeClasses); tq.classList.remove(...inactiveClasses);
+                    ts.classList.remove(...activeClasses); ts.classList.add(...inactiveClasses);
+                }
+            };
+
+            window.downloadActiveQR = async () => {
+                const img = document.getElementById('displayQR');
+                if (!img || !img.src) return;
+                const r = await fetch(img.src);
+                const b = await r.blob();
+                const u = window.URL.createObjectURL(b);
+                const a = document.createElement('a'); a.href = u; a.download = 'Event_QR.png'; a.click();
+            };
+
+            window.selectEvent = (ev, isPopState = false) => {
+                window.selectedEventInfo = ev;
+                gridContainer.style.display = 'none';
+                ctr.classList.remove('hidden');
+                
+                // Show Back Button
+                document.getElementById('backToEventsBtn').style.setProperty('display', 'flex', 'important');
+                
+                mainTitle.innerText = ev.name;
+                // Show event details in subtitle with professional icons
+                const startD = ev.startDate ? new Date(ev.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+                const endD = ev.endDate ? new Date(ev.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+                
+                const locIcon = `<svg style="width:14px;height:14px;display:inline-block;vertical-align:text-bottom;margin-right:4px;color:#3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke-width="2.5"></path><circle cx="12" cy="10" r="3" stroke-width="2.5"></circle></svg>`;
+                const dateIcon = `<svg style="width:14px;height:14px;display:inline-block;vertical-align:text-bottom;margin-right:4px;color:#3b82f6;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2.5"></path></svg>`;
+
+                const locText = ev.location ? `<span>${locIcon}${ev.location}</span>` : '';
+                const dateText = (startD && endD) ? `<span>${dateIcon}${startD} — ${endD}</span>` : '';
+                const subtitleParts = [locText, dateText].filter(Boolean).join('<span style="margin: 0 10px; opacity: 0.3;">•</span>');
+                document.getElementById('mainSubtitle').innerHTML = subtitleParts || 'Event Active';
+                // Hide CREATE EVENT
+                document.getElementById('openEventBtn').style.display = 'none';
+                
+                // Show Database Button & Setup Click
+                const dbBtn = document.getElementById('eventDatabaseBtn');
+                dbBtn.style.display = 'flex';
+                dbBtn.onclick = () => openDbView(ev.id, ev.name);
+                
+                // Generate vCard QR
+                const vC = (val) => (val || '').replace(/\n/g, ' ');
+                const contactName = ev.keyPersonName || ev.name || 'Event Contact';
+                const nameParts = contactName.split(' ');
+                const lastName = nameParts.length > 1 ? nameParts.pop() : '';
+                const firstName = nameParts.join(' ') || contactName;
+
+                const vCard = [
+                    'BEGIN:VCARD', 'VERSION:3.0',
+                    `N:${vC(lastName)};${vC(firstName)};;;`,
+                    `FN:${vC(contactName)}`,
+                    `ORG:${vC(ev.companyName || '')}`,
+                    `TEL;TYPE=WORK,VOICE:${vC(ev.officialPhone || '')}`,
+                    `EMAIL;TYPE=WORK,INTERNET:${vC(ev.officialEmail || '')}`,
+                    `ADR;TYPE=WORK:;;${vC(ev.addressLine || '')};${vC(ev.city || '')};${vC(ev.state || '')};${vC(ev.pincode || '')};${vC(ev.country || 'India')}`,
+                    `URL:${vC(ev.websiteUrl || '')}`,
+                    'END:VCARD'
+                ].join('\n');
+                document.getElementById('displayQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(vCard)}`;
+
+                if (!isPopState) {
+                    window.history.pushState({view: 'scan', event: ev}, '');
+                }
+                
+                toastMe('Event Pipeline: ' + ev.name, '#3b82f6');
+                done(); // Reset form state
+            };
+
+            async function fetchEvents() {
+                eventGrid.innerHTML = `
+                    <div class="col-span-full py-20 text-center">
+                        <div class="sync-loader mx-auto mb-4"></div>
+                        <p class="text-gray-400 font-medium">Synchronizing Event Hub...</p>
+                    </div>
+                `;
+                try {
+                    const r = await fetch('/get-events');
+                    const res = await r.json();
+                    if (res.success && res.data && res.data.length > 0) {
+                        eventGrid.innerHTML = '';
+                        res.data.forEach(ev => {
+                            const card = document.createElement('div');
+                             card.className = "event-card group cursor-pointer animate-fade-in";
+                             card.style.cssText = `
+                                background: #ffffff !important;
+                                border: 1.5px solid #e2e8f0 !important;
+                                border-radius: 16px !important;
+                                padding: 12px !important;
+                                box-shadow: 0 2px 4px -1px rgba(0,0,0,0.05) !important;
+                                display: block !important;
+                                transition: all 0.2s ease !important;
+                             `;
+                             card.onclick = () => selectEvent(ev);
+                             
+                             const startDate = ev.startDate ? new Date(ev.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'TBA';
+                             const endDate = ev.endDate ? new Date(ev.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'TBA';
+                             
+                             card.innerHTML = `
+                                <div class="flex justify-between items-center mb-2" style="pointer-events:none">
+                                    <div class="p-1.5 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </div>
+                                    <span class="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full uppercase tracking-widest">${ev.id}</span>
+                                </div>
+                                <h3 class="text-sm font-bold text-gray-800 transition-colors group-hover:text-blue-700 leading-tight mb-1.5" style="pointer-events:none">${ev.name}</h3>
+                                ${ev.location ? `<div class="flex items-center gap-1 mb-1.5" style="pointer-events:none">
+                                    <svg style="width:11px;height:11px;flex-shrink:0;color:#94a3b8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    <span class="text-[11px] text-gray-400 font-medium truncate" style="max-width:150px;">${ev.location}</span>
+                                </div>` : ''}
+                                <div class="flex items-center justify-between pt-2 border-t border-gray-100" style="pointer-events:none">
+                                    <div class="flex items-center gap-1.5">
+                                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        <span class="text-[11px] font-bold text-gray-400 uppercase tracking-tight">${startDate} — ${endDate}</span>
+                                    </div>
+                                    <div class="w-5 h-5 rounded-full bg-gray-50 flex items-center justify-center group-hover:bg-blue-600 transition-all">
+                                        <svg class="w-3 h-3 text-gray-300 group-hover:text-white transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </div>
+                                </div>
+                             `;
+
+                            eventGrid.appendChild(card);
+                        });
+                    } else {
+                        eventGrid.innerHTML = `
+                            <div class="col-span-full py-20 text-center bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-100">
+                                <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px]">No Active Event Pipelines Found</p>
+                                <p class="text-gray-400 text-xs mt-2">Create a new event to start capturing leads.</p>
+                            </div>
+                        `;
+                    }
+                } catch (e) {
+                    eventGrid.innerHTML = '<div class="col-span-full py-10 text-center text-red-500 font-bold">Failed to load events.</div>';
+                }
+            }
+
             // --- Camera Logic ---
             window.openCameraFlow = async (side) => {
                 currentSide = side || 'front';
-                dom.label.innerText = side === 'front' ? 'Capture Front Side' : 'Capture Back Side';
+                // Use the label in the camera modal correctly
+                const overlayLabel = document.querySelector('#cameraOverlay .camera-label');
+                if (overlayLabel) overlayLabel.innerText = side === 'front' ? 'Capture Front Side' : 'Capture Back Side';
+                
                 dom.overlay.style.display = 'flex';
                 dom.choice.style.display = 'none';
                 dom.btns.style.display = 'flex';
@@ -608,7 +970,8 @@
 
             window.retakeBack = () => {
                 currentSide = 'back';
-                dom.label.innerText = 'Capture Back Side';
+                const overlayLabel = document.querySelector('#cameraOverlay .camera-label');
+                if (overlayLabel) overlayLabel.innerText = 'Capture Back Side';
                 dom.choice.style.display = 'none';
                 dom.btns.style.display = 'flex';
             };
@@ -630,18 +993,17 @@
             }
 
             function checkBtnState() {
-                // Enabled if we have at least a front image (either from capture or file)
                 btn.disabled = !(photoData.front || dom.f1.files[0]);
             }
 
-            // --- Traditional Flow Hooks ---
+            // --- Async Sync Worker ---
             let bg;
             try {
                 bg = new Worker('worker.js');
                 bg.onmessage = e => {
                     const { status, message } = e.data;
                     done();
-                    if (status === 'success') toastMe('Synced with database.', '#10b981');
+                    if (status === 'success') toastMe('Synced with Hub.', '#10b981');
                     else toastMe(message || 'Sync failed.', '#ef4444');
                 };
             } catch (err) { toastMe('Worker error.', '#ef4444'); }
@@ -695,8 +1057,9 @@
                 if (!bg || !p1) return;
 
                 let eventInfo = window.selectedEventInfo || null;
-                if (window.activeMode === 'event' && !eventInfo) {
-                    toastMe('Please select an event first!', '#f59e0b');
+                if (!eventInfo) {
+                    toastMe('Please select an event hub!', '#f59e0b');
+                    showEventList();
                     return;
                 }
 
@@ -706,14 +1069,14 @@
                         ocrBackendUrl: api, 
                         photo1Base64: p1, 
                         photo2Base64: p2,
-                        eventMode: window.activeMode === 'event',
+                        eventMode: true, 
                         eventInfo: eventInfo
                     });
-                    toastMe('Processing in background...', '#3b82f6');
+                    toastMe('Syncing lead...', '#3b82f6');
                 } catch (err) { done(); toastMe('Encode error.', '#ef4444'); }
             };
 
-            // --- Event Logic ---
+            // --- Event Modal Handling ---
             const eventModal = document.getElementById('eventModalBackdrop');
             const openEventBtn = document.getElementById('openEventBtn');
             const closeEventModal = document.getElementById('closeEventModal');
@@ -733,11 +1096,10 @@
                     membersList.innerHTML = '';
                     eventBtnText.classList.remove('hidden');
                     eventBtnLoader.classList.add('hidden');
-                    // Reset visibility
                     document.getElementById('eventCreationForm').classList.remove('hidden');
                     document.querySelector('.modal-header').classList.remove('hidden');
-                    // Reset height
                     document.querySelector('.modal-body').style.minHeight = null;
+                    fetchEvents();
                 }, 400);
             };
 
@@ -772,24 +1134,35 @@
                 document.getElementById(`member-${id}`).remove();
             }
 
-            // --- Logo Handling ---
+            // --- Logo Handling (Profile Drawer) ---
             let logoBase64 = null;
-            const logoInput = document.getElementById('comp_logo_input');
-            const logoPreview = document.getElementById('logo_preview');
-            const logoPlaceholder = document.getElementById('logo_placeholder');
+            const logoInput = document.getElementById('prof_logo_input');
+            const logoPreview = document.getElementById('prof_logo_preview');
+            const logoPlaceholder = document.getElementById('prof_logo_placeholder');
 
-            logoInput.onchange = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (re) => {
-                    logoBase64 = re.target.result;
-                    logoPreview.src = logoBase64;
-                    logoPreview.classList.remove('hidden');
-                    logoPlaceholder.classList.add('hidden');
+            if (logoInput) {
+                logoInput.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (re) => {
+                        logoBase64 = re.target.result;
+                        logoPreview.src = logoBase64;
+                        logoPreview.style.display = 'block';
+                        if (logoPlaceholder) logoPlaceholder.style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
                 };
-                reader.readAsDataURL(file);
-            };
+            }
+
+            // Load stored logo if exists
+            const _storedProf = JSON.parse(localStorage.getItem('botivate_profile') || '{}');
+            if (_storedProf.logoBase64 && logoPreview) {
+                logoBase64 = _storedProf.logoBase64;
+                logoPreview.src = logoBase64;
+                logoPreview.style.display = 'block';
+                if (logoPlaceholder) logoPlaceholder.style.display = 'none';
+            }
 
             eventForm.onsubmit = async (e) => {
                 e.preventDefault();
@@ -807,39 +1180,47 @@
                     });
                 });
 
+                // Load profile from localStorage
+                const prof = JSON.parse(localStorage.getItem('botivate_profile') || '{}');
+
                 const eventData = {
                     eventName: document.getElementById('event_name').value,
                     startDate: document.getElementById('start_date').value,
                     endDate: document.getElementById('end_date').value,
                     location: document.getElementById('event_location').value,
                     description: document.getElementById('event_description').value,
-                    companyName: document.getElementById('comp_name').value,
-                    tagline: document.getElementById('comp_tagline').value,
-                    industry: document.getElementById('comp_industry').value,
-                    foundedYear: document.getElementById('comp_founded').value,
-                    officialPhone: document.getElementById('off_phone').value,
-                    alternatePhone: document.getElementById('alt_phone').value,
-                    officialEmail: document.getElementById('off_email').value,
-                    whatsappNumber: document.getElementById('whatsapp_num').value,
-                    addressLine: document.getElementById('addr_line').value,
-                    city: document.getElementById('city').value,
-                    state: document.getElementById('state').value,
-                    pincode: document.getElementById('pincode').value,
-                    country: document.getElementById('country').value,
-                    websiteUrl: document.getElementById('web_url').value,
-                    googleMapsLink: document.getElementById('maps_link').value,
-                    linkedin: document.getElementById('linkedin_url').value,
-                    instagram: document.getElementById('insta_url').value,
-                    facebook: document.getElementById('fb_url').value,
-                    twitter: document.getElementById('twitter_url').value,
-                    services: document.getElementById('services_offered').value,
-                    aboutCompany: document.getElementById('about_comp').value,
-                    teamMembers: members, // Array of objects now
-                    themeColor: document.getElementById('theme_color').value,
-                    saveContact: document.getElementById('setting_save_contact').checked,
-                    downloadCard: document.getElementById('setting_download_card').checked,
-                    whatsappBtn: document.getElementById('setting_whatsapp_btn').checked,
-                    logoBase64: logoBase64 ? logoBase64.split(',')[1] : null
+                    // Company fields from profile
+                    companyName: prof.companyName || '',
+                    tagline: prof.tagline || '',
+                    industry: prof.industry || '',
+                    foundedYear: prof.foundedYear || '',
+                    officialPhone: prof.officialPhone || '',
+                    alternatePhone: prof.alternatePhone || '',
+                    officialEmail: prof.officialEmail || '',
+                    whatsappNumber: prof.whatsappNumber || '',
+                    addressLine: prof.addressLine || '',
+                    city: prof.city || '',
+                    state: prof.state || '',
+                    pincode: prof.pincode || '',
+                    country: prof.country || 'India',
+                    websiteUrl: prof.websiteUrl || '',
+                    googleMapsLink: prof.googleMapsLink || '',
+                    linkedin: prof.linkedin || '',
+                    instagram: prof.instagram || '',
+                    facebook: prof.facebook || '',
+                    twitter: prof.twitter || '',
+                    services: prof.services || '',
+                    aboutCompany: prof.aboutCompany || '',
+                    keyPersonName: prof.keyPersonName || '',
+                    keyPersonDesignation: prof.keyPersonDesignation || '',
+                    keyPersonPhone: prof.keyPersonPhone || '',
+                    keyPersonEmail: prof.keyPersonEmail || '',
+                    teamMembers: members,
+                    themeColor: prof.themeColor || '#2563eb',
+                    saveContact: true,
+                    downloadCard: true,
+                    whatsappBtn: true,
+                    logoBase64: logoBase64 ? logoBase64.split(',')[1] : (prof.logoBase64 ? prof.logoBase64.split(',')[1] : null)
                 };
 
                 try {
@@ -935,79 +1316,128 @@
                 }
             };
 
-            // Mode Switching
-            window.activeMode = 'normal';
-            window.setMode = (mode) => {
-                window.activeMode = mode;
-                document.getElementById('modeNormal').classList.toggle('active', mode === 'normal');
-                document.getElementById('modeEvent').classList.toggle('active', mode === 'event');
-                
-                const title = document.querySelector('h1');
-                const mainBtnLabel = document.getElementById('labelNormal');
-                const eventSelector = document.getElementById('eventSelectorContainer');
+        });
 
-                if (mode === 'event') {
-                    title.innerText = 'Event Lead Capture';
-                    mainBtnLabel.innerText = 'Sync with Event Hub';
-                    eventSelector.classList.remove('hidden');
-                    fetchEvents();
-                    toastMe('Switched to Event Mode', '#3b82f6');
-                } else {
-                    title.innerText = 'Lead Capture';
-                    mainBtnLabel.innerText = 'Analyze & Sync Card';
-                    eventSelector.classList.add('hidden');
-                    toastMe('Switched to Normal Mode', '#10b981');
-                }
+        // ===== PROFILE DRAWER FUNCTIONS =====
+        function openProfileDrawer() {
+            const drawer = document.getElementById('profileDrawer');
+            const backdrop = document.getElementById('profileBackdrop');
+            backdrop.style.display = 'block';
+            setTimeout(() => { drawer.style.right = '0'; }, 10);
+
+            // Pre-fill from localStorage
+            const prof = JSON.parse(localStorage.getItem('botivate_profile') || '{}');
+            const fields = {
+                'prof_comp_name': 'companyName', 'prof_comp_tagline': 'tagline',
+                'prof_comp_founded': 'foundedYear', 'prof_off_phone': 'officialPhone',
+                'prof_alt_phone': 'alternatePhone', 'prof_off_email': 'officialEmail',
+                'prof_whatsapp': 'whatsappNumber', 'prof_addr_line': 'addressLine',
+                'prof_city': 'city', 'prof_state': 'state', 'prof_pincode': 'pincode',
+                'prof_country': 'country', 'prof_web_url': 'websiteUrl',
+                'prof_maps_link': 'googleMapsLink', 'prof_linkedin': 'linkedin',
+                'prof_instagram': 'instagram', 'prof_facebook': 'facebook',
+                'prof_twitter': 'twitter', 'prof_services': 'services',
+                'prof_about': 'aboutCompany', 'prof_kp_name': 'keyPersonName',
+                'prof_kp_designation': 'keyPersonDesignation', 'prof_kp_phone': 'keyPersonPhone',
+                'prof_kp_email': 'keyPersonEmail'
+            };
+            Object.entries(fields).forEach(([elId, key]) => {
+                const el = document.getElementById(elId);
+                if (el && prof[key]) el.value = prof[key];
+            });
+            // Industry select
+            const indEl = document.getElementById('prof_comp_industry');
+            if (indEl && prof.industry) indEl.value = prof.industry;
+            // Color
+            const colEl = document.getElementById('prof_theme_color');
+            if (colEl && prof.themeColor) colEl.value = prof.themeColor;
+            // Logo
+            if (prof.logoBase64) {
+                const prev = document.getElementById('prof_logo_preview');
+                const ph = document.getElementById('prof_logo_placeholder');
+                if (prev) { prev.src = prof.logoBase64; prev.style.display = 'block'; }
+                if (ph) ph.style.display = 'none';
+            }
+        }
+
+        function closeProfileDrawer() {
+            const drawer = document.getElementById('profileDrawer');
+            const backdrop = document.getElementById('profileBackdrop');
+            drawer.style.right = '-500px';
+            setTimeout(() => { backdrop.style.display = 'none'; }, 350);
+        }
+
+        function saveProfile() {
+            const fields = {
+                companyName: 'prof_comp_name', tagline: 'prof_comp_tagline',
+                industry: 'prof_comp_industry', foundedYear: 'prof_comp_founded',
+                officialPhone: 'prof_off_phone', alternatePhone: 'prof_alt_phone',
+                officialEmail: 'prof_off_email', whatsappNumber: 'prof_whatsapp',
+                addressLine: 'prof_addr_line', city: 'prof_city', state: 'prof_state',
+                pincode: 'prof_pincode', country: 'prof_country', websiteUrl: 'prof_web_url',
+                googleMapsLink: 'prof_maps_link', linkedin: 'prof_linkedin',
+                instagram: 'prof_instagram', facebook: 'prof_facebook', twitter: 'prof_twitter',
+                services: 'prof_services', aboutCompany: 'prof_about',
+                keyPersonName: 'prof_kp_name', keyPersonDesignation: 'prof_kp_designation',
+                keyPersonPhone: 'prof_kp_phone', keyPersonEmail: 'prof_kp_email'
             };
 
-            async function fetchEvents() {
-                const list = document.getElementById('optionsList');
-                list.innerHTML = '<div class="p-3 text-center text-xs text-gray-400">Loading events...</div>';
-                try {
-                    const r = await fetch('/get-events');
-                    const res = await r.json();
-                    if (res.success && res.data) {
-                        list.innerHTML = '';
-                        res.data.forEach(ev => {
-                            const item = document.createElement('div');
-                            item.className = "p-3 text-[11px] font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl cursor-pointer transition-colors flex items-center justify-between group/item";
-                            item.innerHTML = `
-                                <span>${ev.name}</span>
-                                <span class="text-[9px] text-gray-400 group-hover/item:text-blue-300">${ev.id}</span>
-                            `;
-                            item.onclick = () => selectOption(ev);
-                            list.appendChild(item);
-                        });
-                    } else {
-                        list.innerHTML = '<div class="p-3 text-center text-xs text-gray-400">No events found</div>';
-                    }
-                } catch (e) {
-                    list.innerHTML = '<div class="p-3 text-center text-xs text-gray-400">Error loading events</div>';
-                }
+            const prof = {};
+            Object.entries(fields).forEach(([key, elId]) => {
+                const el = document.getElementById(elId);
+                if (el) prof[key] = el.value;
+            });
+
+            // Save logo
+            const prevEl = document.getElementById('prof_logo_preview');
+            if (prevEl && prevEl.src && prevEl.style.display !== 'none') {
+                prof.logoBase64 = prevEl.src;
             }
 
-            window.toggleDropdown = () => {
-                const menu = document.getElementById('dropdownOptions');
-                const arrow = document.getElementById('dropdownArrow');
-                menu.classList.toggle('hidden');
-                arrow.classList.toggle('rotate-180');
-            };
+            localStorage.setItem('botivate_profile', JSON.stringify(prof));
 
-            window.selectOption = (ev) => {
-                window.selectedEventInfo = ev;
-                document.getElementById('selectedEventText').innerText = ev.name;
-                toggleDropdown();
-                toastMe('Pipeline: ' + ev.name, '#3b82f6');
-            };
+            // Show checkmark on profile button briefly
+            const btn = document.getElementById('openProfileBtn');
+            if (btn) {
+                btn.innerHTML = '<svg style="width:17px;height:17px;color:#16a34a;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>';
+                btn.style.background = 'linear-gradient(135deg,#dcfce7,#bbf7d0)';
+                btn.style.borderColor = '#86efac';
+                setTimeout(() => {
+                    btn.innerHTML = '<svg style="width:17px;height:17px;color:#4f46e5;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>';
+                    btn.style.background = 'linear-gradient(135deg,#e0e7ff,#dbeafe)';
+                    btn.style.borderColor = '#c7d2fe';
+                }, 2000);
+            }
 
-            // Close dropdown when clicking outside
-            window.addEventListener('click', (e) => {
-                if (!document.getElementById('customDropdown').contains(e.target)) {
-                    document.getElementById('dropdownOptions').classList.add('hidden');
-                    document.getElementById('dropdownArrow').classList.remove('rotate-180');
-                }
-            });
-        });
+            closeProfileDrawer();
+            alert('✅ Profile saved successfully! It will be used in all future events.');
+        }
     </script>
+    <!-- Camera Overlay -->
+    <div id="cameraOverlay">
+        <div class="camera-container">
+            <video id="videoFeed" autoplay playsinline></video>
+            <div class="camera-label" id="cameraLabel">Capture Front Side</div>
+        </div>
+        
+        <div class="camera-controls" id="cameraBtns">
+            <button onclick="closeCamera()" class="w-14 h-14 bg-white/10 text-white rounded-full flex items-center justify-center backdrop-blur-md">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <button onclick="capture()" class="shutter-btn"></button>
+            <div class="w-14"></div> <!-- Spacer -->
+        </div>
+
+        <div class="choice-modal" id="choiceModal">
+            <h3 class="text-xl font-bold mb-2">Front Side Captured!</h3>
+            <p class="text-gray-500 text-sm mb-6">Excellent scan. Would you like to add the back side of the card for more details?</p>
+            <div class="flex flex-col gap-3">
+                <button onclick="retakeBack()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100">Add Back Side</button>
+                <button onclick="closeCamera()" class="w-full py-4 bg-gray-50 text-gray-500 rounded-2xl font-bold">Skip & Finish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Component Removed -->
 </body>
 </html>
