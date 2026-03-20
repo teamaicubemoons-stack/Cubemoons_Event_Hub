@@ -644,7 +644,8 @@ function saveVisitorAndGetContact(visitorData) {
       instagram: globalProfile.instagram || "",
       services: globalProfile.services || "",
       about: globalProfile.aboutCompany || "",
-      mapsLink: globalProfile.googleMapsLink || ""
+      mapsLink: globalProfile.googleMapsLink || "",
+      logoBase64: globalProfile.logoBase64 || ""
     };
   }
 
