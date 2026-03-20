@@ -52,6 +52,10 @@ function doPost(e) {
       result = getSheetData(postData.sheetName);
     } else if (action === 'get_event') {
       result = getEventById(postData.eventId);
+    } else if (action === 'get_event_list') {
+      result = getEventList();
+    } else if (action === 'save_event_card') {
+      result = saveEventCardData(postData.extractedData, postData.photo1Base64, postData.photo2Base64, postData.eventInfo);
     } else {
       throw new Error("Invalid action specified: " + action);
     }
@@ -317,7 +321,99 @@ function saveEventData(eventData) {
     });
   }
 
-  return { message: "✅ Event '" + eventData.eventName + "' saved. ID: " + eventId, eventId: eventId };
+  return { message: "✅ Event '" + eventData.eventName + "' saved. ID: " + eventId, eventId: eventId, success: true };
+}
+
+function getEventList() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = ss.getSheetByName("Event Details");
+  if (!sheet) return { success: false, message: "Sheet 'Event Details' not found." };
+  
+  const data = sheet.getDataRange().getValues();
+  if (data.length < 2) return { success: true, data: [] };
+  
+  const events = [];
+  for (let i = 1; i < data.length; i++) {
+    // Column B is Event ID, Column C is Event Name, D: Start, E: End
+    if (data[i][1] && data[i][2]) {
+      events.push({
+        id: data[i][1],
+        name: data[i][2],
+        startDate: data[i][3],
+        endDate: data[i][4]
+      });
+    }
+  }
+  return { success: true, data: events };
+}
+
+function saveEventCardData(extractedData, photo1Base64, photo2Base64, eventInfo) {
+  const SHEET_NAME = "Event Ai Card";
+  const FOLDER_ID = "1zggOUpg0SfMdi5LAXIfIWqZcBGMGHmMz";
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+    sheet.appendRow([
+      "Timestamp", "Event ID", "Event Name", "Event Start Date", "Event End Date",
+      "Card Photo 1", "Card Photo 2", "Company Name", "Industry", "Person Name",
+      "Designation", "Phone", "Email", "Website", "Social Media", "Address",
+      "Services", "Company Size", "Founded Year", "Registration Status",
+      "Trust Score", "People (Founders)", "Is Validated", "Source Link",
+      "About Company", "Location"
+    ]);
+    sheet.getRange(1, 1, 1, 26).setFontWeight("bold").setBackground("#f3f3f3");
+  }
+
+  let folder;
+  try { folder = DriveApp.getFolderById(FOLDER_ID); } catch (e) { throw new Error("Drive Folder Error: " + e.message); }
+
+  const timestamp = new Date();
+  
+  const saveImage = (base64, prefix) => {
+    if (!base64 || base64.trim() === "") return "";
+    try {
+      const blob = Utilities.newBlob(Utilities.base64Decode(base64), "image/jpeg", prefix + "_" + timestamp.getTime() + ".jpg");
+      const file = folder.createFile(blob);
+      return file.getUrl();
+    } catch (e) { return "Error: " + e.message; }
+  };
+
+  const img1 = saveImage(photo1Base64, "front");
+  const img2 = saveImage(photo2Base64, "back");
+  
+  const d = extractedData || {};
+  
+  sheet.appendRow([
+    timestamp,
+    eventInfo.id || "N/A",
+    eventInfo.name || "N/A",
+    eventInfo.startDate || "N/A",
+    eventInfo.endDate || "N/A",
+    img1, img2,
+    d.company_name || "",
+    d.industry || "",
+    d.person_name || "",
+    d.designation || "",
+    d.phone || "",
+    d.email || "",
+    d.website || "",
+    d.social_media || "",
+    d.address || "",
+    d.services || "",
+    d.company_size || "",
+    d.founded_year || "",
+    d.registration_status || "",
+    d.trust_score || "",
+    d.people || "",
+    d.is_validated || "",
+    d.source_link || "",
+    d.about_company || "",
+    d.location || ""
+  ]);
+
+  return { success: true, message: "Card saved to Event Hub!" };
 }
 
 function getEventById(eventId) {

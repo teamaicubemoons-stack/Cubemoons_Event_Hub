@@ -4,6 +4,8 @@ from typing import List, Optional
 class OCRRequest(BaseModel):
     base64Image1: str # From Card Front
     base64Image2: Optional[str] = None # From Card Back
+    eventMode: Optional[bool] = False
+    eventInfo: Optional[dict] = None
 
 class KeyPerson(BaseModel):
     name: str = Field(default="Not Found")

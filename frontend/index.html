@@ -111,7 +111,26 @@
         <!-- Dashboard Header -->
         <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12">
             <div>
-                <h1 class="text-3xl font-bold tracking-tight text-gray-900">Lead Capture</h1>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-3xl font-bold tracking-tight text-gray-900">Lead Capture</h1>
+                    <!-- Custom Event Selector in Header -->
+                    <div id="eventSelectorContainer" class="hidden animate-slide-right">
+                        <div class="relative inline-block ml-4" id="customDropdown">
+                            <button type="button" onclick="toggleDropdown()" class="flex items-center gap-3 bg-blue-50 border border-blue-100 pl-4 pr-3 py-2 rounded-2xl hover:bg-white hover:shadow-md transition-all active:scale-95 group">
+                                <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                                <span id="selectedEventText" class="text-[11px] font-bold text-slate-700 max-w-[150px] truncate">-- Choose Event --</span>
+                                <svg class="w-4 h-4 text-blue-400 group-hover:text-blue-600 transition-transform" id="dropdownArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <!-- Custom Options List -->
+                            <div id="dropdownOptions" class="hidden absolute top-full left-0 mt-2 w-64 bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-2xl z-[100] max-h-60 overflow-y-auto p-2 animate-slide-up">
+                                <div class="px-3 py-2 text-[9px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-50 mb-1">Available Event Pipelines</div>
+                                <div id="optionsList">
+                                    <div class="p-3 text-center text-xs text-gray-400">Loading events...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <p class="text-gray-500 text-sm font-medium mt-1">Intelligent OCR Processing Engine</p>
             </div>
             <div class="flex items-center gap-4">
@@ -131,7 +150,7 @@
         </header>
 
         <!-- Dynamic Workspace -->
-        <main class="premium-card p-6 sm:p-10 relative overflow-hidden" id="mainContainer">
+        <main class="premium-card p-6 sm:p-10 relative" id="mainContainer">
             <div class="scan-progress"></div>
             
             <form id="extractionForm" class="space-y-12">
@@ -674,9 +693,22 @@
                 const p2 = photoData.back ? photoData.back.split(',')[1] : '';
                 
                 if (!bg || !p1) return;
+
+                let eventInfo = window.selectedEventInfo || null;
+                if (window.activeMode === 'event' && !eventInfo) {
+                    toastMe('Please select an event first!', '#f59e0b');
+                    return;
+                }
+
                 work();
                 try {
-                    bg.postMessage({ ocrBackendUrl: api, photo1Base64: p1, photo2Base64: p2 });
+                    bg.postMessage({ 
+                        ocrBackendUrl: api, 
+                        photo1Base64: p1, 
+                        photo2Base64: p2,
+                        eventMode: window.activeMode === 'event',
+                        eventInfo: eventInfo
+                    });
                     toastMe('Processing in background...', '#3b82f6');
                 } catch (err) { done(); toastMe('Encode error.', '#ef4444'); }
             };
@@ -912,17 +944,69 @@
                 
                 const title = document.querySelector('h1');
                 const mainBtnLabel = document.getElementById('labelNormal');
+                const eventSelector = document.getElementById('eventSelectorContainer');
 
                 if (mode === 'event') {
                     title.innerText = 'Event Lead Capture';
                     mainBtnLabel.innerText = 'Sync with Event Hub';
+                    eventSelector.classList.remove('hidden');
+                    fetchEvents();
                     toastMe('Switched to Event Mode', '#3b82f6');
                 } else {
                     title.innerText = 'Lead Capture';
                     mainBtnLabel.innerText = 'Analyze & Sync Card';
+                    eventSelector.classList.add('hidden');
                     toastMe('Switched to Normal Mode', '#10b981');
                 }
             };
+
+            async function fetchEvents() {
+                const list = document.getElementById('optionsList');
+                list.innerHTML = '<div class="p-3 text-center text-xs text-gray-400">Loading events...</div>';
+                try {
+                    const r = await fetch('/get-events');
+                    const res = await r.json();
+                    if (res.success && res.data) {
+                        list.innerHTML = '';
+                        res.data.forEach(ev => {
+                            const item = document.createElement('div');
+                            item.className = "p-3 text-[11px] font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl cursor-pointer transition-colors flex items-center justify-between group/item";
+                            item.innerHTML = `
+                                <span>${ev.name}</span>
+                                <span class="text-[9px] text-gray-400 group-hover/item:text-blue-300">${ev.id}</span>
+                            `;
+                            item.onclick = () => selectOption(ev);
+                            list.appendChild(item);
+                        });
+                    } else {
+                        list.innerHTML = '<div class="p-3 text-center text-xs text-gray-400">No events found</div>';
+                    }
+                } catch (e) {
+                    list.innerHTML = '<div class="p-3 text-center text-xs text-gray-400">Error loading events</div>';
+                }
+            }
+
+            window.toggleDropdown = () => {
+                const menu = document.getElementById('dropdownOptions');
+                const arrow = document.getElementById('dropdownArrow');
+                menu.classList.toggle('hidden');
+                arrow.classList.toggle('rotate-180');
+            };
+
+            window.selectOption = (ev) => {
+                window.selectedEventInfo = ev;
+                document.getElementById('selectedEventText').innerText = ev.name;
+                toggleDropdown();
+                toastMe('Pipeline: ' + ev.name, '#3b82f6');
+            };
+
+            // Close dropdown when clicking outside
+            window.addEventListener('click', (e) => {
+                if (!document.getElementById('customDropdown').contains(e.target)) {
+                    document.getElementById('dropdownOptions').classList.add('hidden');
+                    document.getElementById('dropdownArrow').classList.remove('rotate-180');
+                }
+            });
         });
     </script>
 </body>

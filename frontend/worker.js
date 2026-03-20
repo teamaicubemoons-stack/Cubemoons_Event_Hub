@@ -1,7 +1,7 @@
 // This is the full content for worker.js
 self.onmessage = async function(event) {
     // --- [UPDATED] ---
-    const { ocrBackendUrl, photo1Base64, photo2Base64 } = event.data;
+    const { ocrBackendUrl, photo1Base64, photo2Base64, eventMode, eventInfo } = event.data;
     // --- [END OF UPDATE] ---
     
     try {
@@ -14,10 +14,12 @@ self.onmessage = async function(event) {
                 'Content-Type': 'application/json',
             },
             // --- [UPDATED] ---
-            // Send both images to the backend
+            // Send both images and event info to the backend
             body: JSON.stringify({ 
                 base64Image1: photo1Base64,
-                base64Image2: photo2Base64 
+                base64Image2: photo2Base64,
+                eventMode: eventMode,
+                eventInfo: eventInfo
             }),
             // --- [END OF UPDATE] ---
         });

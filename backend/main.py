@@ -42,11 +42,12 @@ async def perform_ocr(request: OCRRequest):
         
         # 4. Sheet Submission
         payload = {
-            "action": "save",
+            "action": "save_event_card" if request.eventMode else "save",
             "extractedData": final_data,
             "confidence_score": confidence_score,
             "photo1Base64": request.base64Image1, 
-            "photo2Base64": request.base64Image2 or ""
+            "photo2Base64": request.base64Image2 or "",
+            "eventInfo": request.eventInfo
         }
         
         # Log the final enriched data to terminal
@@ -60,6 +61,16 @@ async def perform_ocr(request: OCRRequest):
     except Exception as e:
         logger.error(f"Global Endpoint Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/get-events")
+async def get_events_list():
+    try:
+        resp = submit_to_sheets({"action": "get_event_list"})
+        if resp and resp.status_code == 200:
+            return resp.json()
+        return {"success": False, "message": "Failed to fetch event list"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
 
 @app.post("/save-event")
 async def save_event(request: dict):
