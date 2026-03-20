@@ -245,7 +245,15 @@
                     if (c.website) { document.getElementById('valWebsite').innerText = c.website; document.getElementById('valWebsite').href = (c.website.startsWith('http') ? c.website : 'https://'+c.website); document.getElementById('rowWebsite').classList.remove('hidden'); }
                     
                     const fullAddr = [c.address, c.city, c.state, c.country].filter(Boolean).join(', ');
-                    if (fullAddr) { document.getElementById('valAddress').innerText = fullAddr; document.getElementById('rowAddress').classList.remove('hidden'); }
+                    if (fullAddr) { 
+                        const addrEl = document.getElementById('valAddress');
+                        if (c.mapsLink) {
+                            addrEl.innerHTML = `<a href="${c.mapsLink}" target="_blank" class="hover:underline text-blue-600">${fullAddr}</a>`;
+                        } else {
+                            addrEl.innerText = fullAddr;
+                        }
+                        document.getElementById('rowAddress').classList.remove('hidden'); 
+                    }
                     
                     // Logo handle
                     if (c.logoBase64 && c.logoBase64.startsWith('data:image')) {

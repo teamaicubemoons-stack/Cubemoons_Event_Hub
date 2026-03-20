@@ -643,7 +643,8 @@ function saveVisitorAndGetContact(visitorData) {
       facebook: globalProfile.facebook || "",
       instagram: globalProfile.instagram || "",
       services: globalProfile.services || "",
-      about: globalProfile.aboutCompany || ""
+      about: globalProfile.aboutCompany || "",
+      mapsLink: globalProfile.googleMapsLink || ""
     };
   }
 
