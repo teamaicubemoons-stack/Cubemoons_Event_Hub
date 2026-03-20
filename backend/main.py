@@ -72,6 +72,17 @@ async def get_events_list():
     except Exception as e:
         return {"success": False, "message": str(e)}
 
+@app.get("/get-event/{event_id}")
+async def get_event_by_id(event_id: str):
+    try:
+        resp = submit_to_sheets({"action": "get_event", "eventId": event_id})
+        if resp and resp.status_code == 200:
+            return resp.json()
+        return {"success": False, "message": "Failed to fetch event details"}
+    except Exception as e:
+        logger.error(f"Get Event Error: {e}")
+        return {"success": False, "message": str(e)}
+
 @app.post("/save-event")
 async def save_event(request: dict):
     try:

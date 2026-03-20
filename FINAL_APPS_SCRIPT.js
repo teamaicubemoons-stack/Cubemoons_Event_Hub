@@ -525,38 +525,10 @@ function saveVisitorAndGetContact(visitorData) {
   const SHEET_NAME = "Visitor Details";
   const ss = SpreadsheetApp.openById(SHEET_ID);
   
-  // 1. Save the visitor details
-  let sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) {
-    sheet = ss.insertSheet(SHEET_NAME);
-    sheet.appendRow([
-      "Timestamp", 
-      "Event ID",
-      "Visitor Name", 
-      "Visitor Mobile", 
-      "Visitor Email", 
-      "Visitor Organization", 
-      "Visitor Designation", 
-      "Message"
-    ]);
-    sheet.getRange(1, 1, 1, 8).setFontWeight("bold").setBackground("#f3f3f3");
-  }
-  
-  const timestamp = new Date();
-  sheet.appendRow([
-    timestamp,
-    visitorData.eventId || "N/A",
-    visitorData.visitorName || "",
-    visitorData.visitorMobile || "",
-    visitorData.visitorEmail || "",
-    visitorData.visitorOrg || "",
-    visitorData.visitorDesig || "",
-    visitorData.message || ""
-  ]);
-
-  // 2. Fetch the Event Organizer contact info
+  // 1. Fetch the Event Organizer contact info first to get Event Name
   const eventSheet = ss.getSheetByName("Event Details");
   let contactInfo = null;
+  let eventName = "N/A";
   
   if (eventSheet) {
     const data = eventSheet.getDataRange().getValues();
@@ -570,16 +542,32 @@ function saveVisitorAndGetContact(visitorData) {
           rowData[h] = data[i][idx];
         });
         
-        let managerName = rowData["Member Name"] || rowData["Event Name"];
-        if (rowData["Key Person Name"]) managerName = rowData["Key Person Name"]; // Fallback profile key person
+        eventName = rowData["Event Name"] || "N/A";
+        let managerName = rowData["Member Name"] || rowData["Key Person Name"] || rowData["Event Name"];
         
         contactInfo = {
           name: managerName,
           company: rowData["Company Name"] || rowData["Event Name"],
+          tagline: rowData["Tagline"] || "",
+          industry: rowData["Industry"] || "",
+          foundedYear: rowData["Founded Year"] || "",
           phone: rowData["Phone"] || rowData["Official Phone"] || "N/A",
+          altPhone: rowData["Alternate Phone"] || "",
           email: rowData["Official Email"] || "N/A",
+          whatsapp: rowData["WhatsApp Number"] || "",
           address: rowData["Address Line 1"] || rowData["Location"] || "",
-          website: rowData["Website URL"] || ""
+          city: rowData["City"] || "",
+          state: rowData["State"] || "",
+          pincode: rowData["Pincode"] || "",
+          country: rowData["Country"] || "",
+          website: rowData["Website URL"] || "",
+          mapsLink: rowData["Google Maps Link"] || "",
+          linkedin: rowData["LinkedIn profile link"] || "",
+          instagram: rowData["Instagram profile link"] || "",
+          facebook: rowData["Facebook profile link"] || "",
+          twitter: rowData["Twitter profile link"] || "",
+          services: rowData["Services Provided"] || "",
+          about: rowData["About the company"] || ""
         };
         break;
       }
@@ -594,8 +582,39 @@ function saveVisitorAndGetContact(visitorData) {
        phone: "",
        email: "",
        website: ""
-    }
+    };
   }
+
+  // 2. Save the visitor details
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+    sheet.appendRow([
+      "Timestamp", 
+      "Event ID",
+      "Event Name",
+      "Visitor Name", 
+      "Visitor Mobile", 
+      "Visitor Email", 
+      "Visitor Organization", 
+      "Visitor Designation", 
+      "Message"
+    ]);
+    sheet.getRange(1, 1, 1, 9).setFontWeight("bold").setBackground("#f3f3f3");
+  }
+  
+  const timestamp = new Date();
+  sheet.appendRow([
+    timestamp,
+    visitorData.eventId || "N/A",
+    eventName,
+    visitorData.visitorName || "",
+    visitorData.visitorMobile || "",
+    visitorData.visitorEmail || "",
+    visitorData.visitorOrg || "",
+    visitorData.visitorDesig || "",
+    visitorData.message || ""
+  ]);
 
   return { success: true, message: "Visitor saved successfully", contactInfo: contactInfo };
 }
