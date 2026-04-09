@@ -191,21 +191,21 @@ function App() {
       fetchEventData(id);
     } else {
       setContactInfo({
-        firstName: "Satyendra",
-        lastName: "Tandan",
-        title: "Founder & CEO",
-        organization: "Botivate Services LLP",
-        phone: "8871527519",
-        email: "satyendra@botivate.in",
-        address: "Office No - 224, Shriram Business Park, Amaseoni, Vidhan Sabha Rd",
+        firstName: "Amman",
+        lastName: "Khan",
+        title: "CO Founder & CEO",
+        organization: "Cubemoons Services LLP",
+        phone: "9876543210",
+        email: "teamaicubemoons@gmail.com",
+        address: "4th floor, Mr. DIY building, NIT Road Raipur",
         city: "Raipur",
         state: "Chhattisgarh",
-        pincode: "493111",
+        pincode: "492001",
         country: "India",
-        website: "www.botivate.in",
-        logo: "images/Botivate.png",
+        website: "www.cubemoons.in",
+        logo: "images/Cubemoons.png",
         industry: "Technology",
-        tagline: "Powering Businesses On Autopilot"
+        tagline: "Building intelligent digital solutions for business growth"
       });
       setLoading(false);
     }
@@ -243,7 +243,7 @@ function App() {
         const d = res.data;
         const allKeys = Object.keys(d);
         const logoKey = allKeys.find(k => k.toLowerCase().includes('logo') || k.toLowerCase().includes('photo') || k.toLowerCase().includes('image'));
-        const rawLogo = logoKey ? d[logoKey] : "images/Botivate.png";
+        const rawLogo = logoKey ? d[logoKey] : "images/Cubemoons.png";
         const processedLogo = convertDriveLink(rawLogo);
         const finalLogo = wrapWithProxy(processedLogo);
         const eName = d["Event Name"] || "Unknown Event";
@@ -253,16 +253,16 @@ function App() {
           firstName: d["Member Name"] ? d["Member Name"].split(' ')[0] : (d["Event Name"] || "Event"),
           lastName: d["Member Name"] ? d["Member Name"].split(' ').slice(1).join(' ') : "",
           title: d["Designation"] || "Event Organizer",
-          organization: d["Company Name"] || "Botivate Services LLP",
+          organization: d["Company Name"] || "Cubemoons Services LLP",
           phone: d["Member Phone"] || d["Official Phone"] || d["Mobile Number"] || "8871527519",
-          email: d["Official Email"] || "satyendra@botivate.in",
+          email: d["Official Email"] || "satyendra@cubemoons.in",
           address: d["Address Line"] || "",
           city: d["City"] || "Raipur",
           state: d["State"] || "Chhattisgarh",
           pincode: d["Pincode"] || "493111",
           country: d["Country"] || "India",
-          website: d["Website URL"] || d["Website"] || "www.botivate.in",
-          logo: finalLogo || "images/Botivate.png",
+          website: d["Website URL"] || d["Website"] || "www.cubemoons.in",
+          logo: finalLogo || "images/Cubemoons.png",
           tagline: d["Tagline"] || "",
           industry: d["Industry"] || "Technology",
           whatsapp: d["WhatsApp Number"] || "",

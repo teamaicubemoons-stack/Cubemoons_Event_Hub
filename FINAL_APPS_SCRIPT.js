@@ -28,7 +28,7 @@ function doGet(e) {
 /**
  * Handle POST requests for complex actions.
  */
-const SHEET_ID = "1c3v7DcBqfMK8yzPyMs3StwNj7bg7yc5gSnEsHnmuBlg";
+const SHEET_ID = "1rXmZNuwCKfj_w9QgERB475V9Ht2pfm_tW_ffZsLmHuI";
 
 function doPost(e) {
   try {
@@ -80,7 +80,7 @@ function doPost(e) {
 }
 
 function extractData(photo1Base64) {
-  const PYTHON_BACKEND_URL = "https://ocr-reader-botivate.onrender.com";
+  const PYTHON_BACKEND_URL = "https://ocr-reader-cubemoons.onrender.com";
 
   const options = {
     method: "post",
@@ -98,7 +98,7 @@ function extractData(photo1Base64) {
 
 function saveData(extractedData, photo1Base64, photo2Base64) {
   // --- CONFIGURATION ---
-  const FOLDER_ID = "1zggOUpg0SfMdi5LAXIfIWqZcBGMGHmMz";
+  const FOLDER_ID = "1lVyacN9syzVgZ1vvW9uVAXtl3N25iEqe";
   const SHEET_NAME = "Ai Card";
   // ---------------------
 
@@ -338,7 +338,7 @@ function getEventList() {
 
 function saveEventCardData(extractedData, photo1Base64, photo2Base64, eventInfo) {
   const SHEET_NAME = "Event Ai Card";
-  const FOLDER_ID = "1zggOUpg0SfMdi5LAXIfIWqZcBGMGHmMz";
+  const FOLDER_ID = "1lVyacN9syzVgZ1vvW9uVAXtl3N25iEqe";
   const ss = SpreadsheetApp.openById(SHEET_ID);
   let sheet = ss.getSheetByName(SHEET_NAME);
   

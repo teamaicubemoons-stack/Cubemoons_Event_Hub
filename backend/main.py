@@ -8,7 +8,7 @@ import httpx
 # Fix path to allow importing from 'backend'
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backend.core.config import logger, FRONTEND_DIR
+from backend.core.config import APPS_SCRIPT_URL, PROJECT_ROOT, FRONTEND_DIR, logger
 from backend.core.models import OCRRequest
 from backend.services.ocr_service import extract_card_data
 from backend.services.enrichment_service import run_waterfall_enrichment
@@ -20,6 +20,10 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
 )
+
+@app.get("/get-config")
+async def get_config():
+    return {"APPS_SCRIPT_URL": APPS_SCRIPT_URL}
 
 @app.post("/ocr")
 async def perform_ocr(request: OCRRequest):
@@ -209,7 +213,7 @@ app.mount("/assets", StaticFiles(directory=FRONTEND_DIR), name="assets")
 # Mount Scanner Build (React)
 # Use dynamic path for cloud compatibility
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SCANNER_DIST = os.path.join(PROJECT_ROOT, "BotivateScanner", "dist")
+SCANNER_DIST = os.path.join(PROJECT_ROOT, "CubemoonsScanner", "dist")
 
 if os.path.exists(SCANNER_DIST):
     app.mount("/scanner", StaticFiles(directory=SCANNER_DIST, html=True), name="scanner")

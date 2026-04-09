@@ -118,7 +118,7 @@ Business-Card-OCR/
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/teamai-botivate/Bussiness_Card_Reader.git
+git clone https://github.com/teamai-cubemoons/Bussiness_Card_Reader.git
 cd Bussiness_Card_Reader
 
 # 2. Create virtual environment
@@ -208,4 +208,4 @@ MIT License — feel free to use, modify, and distribute.
 
 ---
 
-**Built with ❤️ by [Team AI Botivate](https://github.com/teamai-botivate)**
+**Built with ❤️ by [Team AI Cubemoons](https://github.com/teamai-cubemoons)**

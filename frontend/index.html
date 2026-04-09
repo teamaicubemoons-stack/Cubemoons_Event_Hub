@@ -150,12 +150,15 @@
                 <button id="backToEventsBtn" class="hidden items-center justify-center w-10 h-10 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 transition-all active:scale-95 shrink-0 group">
                     <svg class="w-5 h-5 text-gray-600 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 </button>
-                <div class="min-w-0">
-                    <h1 id="mainTitle" class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight leading-none">Event Hub</h1>
-                    <p id="mainSubtitle" class="hide-mobile text-[9px] sm:text-[11px] text-blue-600 font-bold uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2">
-                        <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
-                        Intelligent OCR Processing
-                    </p>
+                <div class="flex items-center gap-3 min-w-0">
+                    <img src="/assets/logo.png" alt="Cubemoons Logo" class="w-10 h-10 sm:w-12 sm:h-12 object-contain shrink-0">
+                    <div>
+                        <h1 id="mainTitle" class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight leading-none">Cubemoons Event Hub</h1>
+                        <p id="mainSubtitle" class="hide-mobile text-[9px] sm:text-[11px] text-blue-600 font-bold uppercase tracking-[0.2em] mt-1.5 flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                            Intelligent OCR Processing
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -531,7 +534,7 @@
 
     <!-- ===== GLOBAL FOOTER ===== -->
     <footer style="border-top: 1px solid #f1f5f9; padding: 28px 0; text-align: center;">
-        <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4em; color: #cbd5e1;">Powered by Botivate</span>
+        <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4em; color: #cbd5e1;">Powered by Cubemoons</span>
     </footer>
 
     <!-- Event Creation Modal -->
@@ -1213,7 +1216,7 @@
             }
 
             // Load stored logo if exists locally (can keep this for UI)
-            const _storedProf = JSON.parse(localStorage.getItem('botivate_profile') || '{}');
+            const _storedProf = JSON.parse(localStorage.getItem('cubemoons_profile') || '{}');
             if (_storedProf.logoBase64 && logoPreview) {
                 logoBase64 = _storedProf.logoBase64;
                 logoPreview.src = logoBase64;

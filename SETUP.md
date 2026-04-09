@@ -20,7 +20,7 @@ This guide walks you through setting up the Business Card Reader from scratch on
 ## 🚀 Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/teamai-botivate/Bussiness_Card_Reader.git
+git clone https://github.com/teamai-cubemoons/Bussiness_Card_Reader.git
 cd Bussiness_Card_Reader
 ```
 
@@ -245,4 +245,4 @@ The frontend is static HTML/CSS/JS and can be hosted on:
 
 ---
 
-**Need help?** Open an issue on [GitHub](https://github.com/teamai-botivate/Bussiness_Card_Reader/issues).
+**Need help?** Open an issue on [GitHub](https://github.com/teamai-cubemoons/Bussiness_Card_Reader/issues).

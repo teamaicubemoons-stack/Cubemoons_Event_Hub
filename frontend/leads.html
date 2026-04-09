@@ -161,12 +161,15 @@
                 <a href="/" class="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-white border border-gray-200 rounded-full shadow-sm hover:bg-gray-50 transition-all active:scale-90 shrink-0">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 </a>
-                <div class="min-w-0">
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight truncate leading-tight">Leads Database</h1>
-                    <p class="text-[8px] sm:text-[10px] text-blue-600 font-bold uppercase tracking-[0.2em] mt-0.5 flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
-                        Automated Intelligence Sync
-                    </p>
+                <div class="flex items-center gap-3 min-w-0">
+                    <img src="/assets/logo.png" alt="Cubemoons Logo" class="w-10 h-10 sm:w-12 sm:h-12 object-contain shrink-0">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight truncate leading-tight">Cubemoons Leads Database</h1>
+                        <p class="text-[8px] sm:text-[10px] text-blue-600 font-bold uppercase tracking-[0.2em] mt-0.5 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                            Automated Intelligence Sync
+                        </p>
+                    </div>
                 </div>
             </div>
             
@@ -295,7 +298,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCPeTYr3DyfmQaEJCQ_A7KnKJ9gZtz4zO-chHkLyvxMFsCd2JRWikUB8LxpFwwbuczxw/exec';
+        let APPS_SCRIPT_URL = '';
         let qrInstance = null;
         let currentEventId = '';
         
@@ -520,7 +523,7 @@
             const tbody = document.getElementById('tableBody');
 
             const colKeys = currentTab === 'leads' ? LEADS_COL_KEYS : EVENTS_COL_KEYS;
-            const sheetName = currentTab === 'leads' ? 'Event AI Card' : 'Visitor Details';
+            const sheetName = currentTab === 'leads' ? 'Event Ai Card' : 'Visitor Details';
 
             thead.innerHTML = `<tr>${colKeys.map(k => `<th style="${k[0] === 'S No.' ? 'width: 60px; text-align: center;' : ''}">${k[0]}</th>`).join('')}</tr>`;
             
@@ -822,8 +825,21 @@
             document.body.removeChild(link);
         }
 
-        // Load on start
-        loadData();
+        // Fetch config from backend before loading data
+        async function fetchConfig() {
+            try {
+                const response = await fetch('/get-config');
+                const config = await response.json();
+                APPS_SCRIPT_URL = config.APPS_SCRIPT_URL;
+                // Once we have the URL, we can load data
+                loadData();
+            } catch (err) {
+                console.error("Failed to fetch configuration:", err);
+            }
+        }
+
+        // Start initialization
+        fetchConfig();
     </script>
 </body>
 </html>
