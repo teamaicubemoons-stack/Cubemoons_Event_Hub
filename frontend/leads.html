@@ -701,22 +701,40 @@
                     } 
 
                     // --- 4. SOCIAL MEDIA ---
-                    else if (colName === 'social media' && val) {
+                    else if (colName.includes('social') && val) {
                         const links = String(val).split(/[\n,]+/).map(s => s.trim()).filter(s => s.startsWith('http'));
                         
                         if (links.length > 0) {
-                            let html = `<div class="flex flex-wrap gap-2 max-w-[300px]">`;
+                            let html = `<div class="flex flex-col gap-1.5 py-1">`;
                             links.forEach(link => {
-                                let label = 'Link';
-                                let colorClass = 'text-blue-600 bg-blue-50 hover:bg-blue-100';
+                                let label = 'Social Link';
+                                let style = 'color: #3b82f6; background: #eff6ff; border-color: #dbeafe;';
 
-                                if (link.includes('facebook')) { label = 'Facebook'; colorClass = 'text-blue-700 bg-blue-50 hover:bg-blue-100'; }
-                                else if (link.includes('instagram')) { label = 'Instagram'; colorClass = 'text-pink-600 bg-pink-50 hover:bg-pink-100'; }
-                                else if (link.includes('linkedin')) { label = 'LinkedIn'; colorClass = 'text-sky-700 bg-sky-50 hover:bg-sky-100'; }
-                                else if (link.includes('twitter') || link.includes('x.com')) { label = 'X'; colorClass = 'text-neutral-900 bg-neutral-100 hover:bg-neutral-200'; }
-                                else if (link.includes('youtube')) { label = 'YouTube'; colorClass = 'text-red-600 bg-red-50 hover:bg-red-100'; }
+                                if (link.includes('facebook')) { 
+                                    label = 'Facebook'; 
+                                    style = 'color: #ffffff; background: #1877F2; border-color: #1877F2;'; 
+                                }
+                                else if (link.includes('instagram')) { 
+                                    label = 'Instagram'; 
+                                    style = 'color: #ffffff; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); border-color: #dc2743;'; 
+                                }
+                                else if (link.includes('linkedin')) { 
+                                    label = 'LinkedIn'; 
+                                    style = 'color: #ffffff; background: #0077b5; border-color: #0077b5;'; 
+                                }
+                                else if (link.includes('twitter') || link.includes('x.com')) { 
+                                    label = 'Twitter / X'; 
+                                    style = 'color: #ffffff; background: #000000; border-color: #000000;'; 
+                                }
+                                else if (link.includes('youtube')) { 
+                                    label = 'YouTube'; 
+                                    style = 'color: #ffffff; background: #FF0000; border-color: #FF0000;'; 
+                                }
 
-                                html += `<a href="${link}" target="_blank" class="inline-flex items-center px-2 py-1 rounded text-[10px] font-semibold border border-transparent ${colorClass} transition-colors" title="${link}">${label}</a>`;
+                                html += `<a href="${link}" target="_blank" 
+                                            style="${style}"
+                                            class="inline-flex items-center justify-center px-3 py-1.5 rounded-md text-[10px] font-bold border transition-all hover:scale-105 active:scale-95 shadow-sm" 
+                                            title="${link}">${label}</a>`;
                             });
                             html += `</div>`;
                             td.innerHTML = html;
