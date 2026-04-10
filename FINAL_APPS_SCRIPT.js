@@ -179,7 +179,7 @@ function saveData(extractedData, photo1Base64, photo2Base64) {
     extractedData.industry || "",       // E 
     extractedData.name || "",           // F
     extractedData.title || "",          // G 
-    extractedData.phone || "",          // H
+    "'" + (extractedData.phone || ""),          // H
     extractedData.email || "",          // I
     extractedData.website || "",        // J 
     extractedData.social_media || "",   // K 
@@ -288,7 +288,7 @@ function saveEventData(eventData) {
           eventData.description || "",
           m.name        || "",
           m.designation || "",
-          m.phone       || ""
+          "'" + (m.phone || "")
         ]);
       } else {
         // Subsequent rows: Event ID only (to link back) + member info
@@ -298,7 +298,7 @@ function saveEventData(eventData) {
           "", "", "", "", "",          // C–G: blank
           m.name        || "",         // H
           m.designation || "",         // I
-          m.phone       || ""          // J
+          "'" + (m.phone || "")          // J
         ]);
       }
     });
@@ -385,7 +385,7 @@ function saveEventCardData(extractedData, photo1Base64, photo2Base64, eventInfo)
     d.industry || "",
     d.person_name || d.name || "",
     d.designation || d.title || "",
-    d.phone || "",
+    "'" + (d.phone || ""),
     d.email || "",
     d.website || "",
     d.social_media || "",
@@ -611,7 +611,7 @@ function saveVisitorAndGetContact(visitorData) {
     visitorData.eventId || "N/A",
     eventName,
     visitorData.visitorName || "",
-    visitorData.visitorMobile || "",
+    "'" + (visitorData.visitorMobile || ""),
     visitorData.visitorEmail || "",
     visitorData.visitorOrg || "",
     visitorData.visitorDesig || "",
